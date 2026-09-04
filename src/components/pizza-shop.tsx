@@ -556,7 +556,7 @@ export function PizzaShop() {
                 <div className="tag-row">
                   {pizza.tags.map((tag) => <span key={tag}>{tag}</span>)}
                 </div>
-                <p className="allergen-note">Allergènes : {pizza.allergens.join(", ")}</p>
+                <p className="allergen-note">Allergènes : {pizza.allergens.join(", ")} · {pizza.dietary.join(", ")}</p>
               </div>
             </motion.article>
           ))}

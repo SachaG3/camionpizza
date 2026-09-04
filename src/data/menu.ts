@@ -8,6 +8,7 @@ export type Pizza = {
   accent: string;
   popular?: boolean;
   allergens: string[];
+  dietary: string[];
   availability?: "available" | "limited" | "sold_out";
 };
 
@@ -21,6 +22,7 @@ export const pizzas: Pizza[] = [
     tags: ["Classique", "Végé"],
     accent: "#d8452f",
     allergens: ["Gluten", "Lait"],
+    dietary: ["Végétarien"],
     popular: true,
   },
   {
@@ -32,6 +34,7 @@ export const pizzas: Pizza[] = [
     tags: ["Crémeuse", "Signature"],
     accent: "#73964b",
     allergens: ["Gluten", "Lait", "Fruits à coque"],
+    dietary: ["Végétarien"],
   },
   {
     id: "pepperoni",
@@ -42,6 +45,7 @@ export const pizzas: Pizza[] = [
     tags: ["Épicée", "Best-seller"],
     accent: "#e66d2f",
     allergens: ["Gluten", "Lait"],
+    dietary: ["Viande non certifiée halal"],
     popular: true,
   },
   {
@@ -53,6 +57,7 @@ export const pizzas: Pizza[] = [
     tags: ["Végé", "Fraîche"],
     accent: "#4e7e55",
     allergens: ["Gluten", "Lait"],
+    dietary: ["Végétarien"],
   },
   {
     id: "nduja",
@@ -63,6 +68,7 @@ export const pizzas: Pizza[] = [
     tags: ["Épicée", "Signature"],
     accent: "#c33b2a",
     allergens: ["Gluten", "Lait"],
+    dietary: ["Viande non certifiée halal"],
   },
   {
     id: "chicken",
@@ -73,6 +79,7 @@ export const pizzas: Pizza[] = [
     tags: ["Sucrée-salée", "Généreuse"],
     accent: "#dc7a2c",
     allergens: ["Gluten", "Lait"],
+    dietary: ["Viande non certifiée halal"],
     popular: true,
   },
   {
@@ -84,6 +91,7 @@ export const pizzas: Pizza[] = [
     tags: ["Végé", "Fraîche"],
     accent: "#c94b32",
     allergens: ["Gluten", "Lait"],
+    dietary: ["Végétarien"],
     availability: "limited",
   },
   {
@@ -95,6 +103,7 @@ export const pizzas: Pizza[] = [
     tags: ["Végé", "Crémeuse"],
     accent: "#bd8a3e",
     allergens: ["Gluten", "Lait"],
+    dietary: ["Végétarien"],
     availability: "sold_out",
   },
 ];
