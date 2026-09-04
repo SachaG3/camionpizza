@@ -8,6 +8,8 @@ describe("filterPizzas", () => {
     expect(filterPizzas(pizzas, "veggie").map((pizza) => pizza.id)).toEqual([
       "margherita",
       "veggie",
+      "tomato",
+      "four-cheese",
     ]);
   });
 
@@ -20,6 +22,28 @@ describe("filterPizzas", () => {
   it("returns only spicy pizzas", () => {
     expect(filterPizzas(pizzas, "spicy").map((pizza) => pizza.id)).toEqual([
       "pepperoni",
+      "nduja",
+    ]);
+  });
+
+  it("matches names and ingredients without accents or case sensitivity", () => {
+    expect(filterPizzas(pizzas, "all", "  RECRE  ").map((pizza) => pizza.id)).toEqual([
+      "pepperoni",
+    ]);
+    expect(filterPizzas(pizzas, "all", "tres bien").map((pizza) => pizza.id)).toEqual([
+      "veggie",
+    ]);
+    expect(filterPizzas(pizzas, "all", "CHAMPIGNON").map((pizza) => pizza.id)).toEqual([
+      "veggie",
+    ]);
+  });
+
+  it("combines a category and a search query", () => {
+    expect(filterPizzas(pizzas, "veggie", "basilic").map((pizza) => pizza.id)).toEqual([
+      "margherita",
+    ]);
+    expect(filterPizzas(pizzas, "spicy", "basilic").map((pizza) => pizza.id)).toEqual([
+      "nduja",
     ]);
   });
 });

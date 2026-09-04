@@ -14,9 +14,11 @@ import {
   Minus,
   Plus,
   Pizza as PizzaIcon,
+  Search,
   ShoppingBag,
   Sparkles,
   UserRound,
+  X,
 } from "lucide-react";
 
 import { AccountDialog } from "@/components/account-dialog";
@@ -74,6 +76,7 @@ export function PizzaShop() {
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<MenuFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
   const [user, setUser] = useState<PublicLoyaltyUser | null>(null);
   const [loyaltyEarned, setLoyaltyEarned] = useState(0);
@@ -84,8 +87,8 @@ export function PizzaShop() {
   const itemCount = cartCount(cart);
   const cartValue = cartTotal(cart);
   const filteredPizzas = useMemo(
-    () => filterPizzas(pizzas, activeFilter),
-    [activeFilter],
+    () => filterPizzas(pizzas, activeFilter, searchQuery),
+    [activeFilter, searchQuery],
   );
   const selectedLocation = useMemo(
     () => locations.find((location) => location.id === locationId) ?? locations[0],
@@ -125,6 +128,21 @@ export function PizzaShop() {
       window.localStorage.setItem("fourchette-location", locationId);
     }
   }, [locationId, locationReady]);
+
+  useEffect(() => {
+    function focusMenuSearch(event: KeyboardEvent) {
+      if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.matches("input, textarea, select, [contenteditable='true']")) return;
+      const input = document.querySelector<HTMLInputElement>("[data-page-search]");
+      if (!input || input.disabled || input.offsetParent === null) return;
+      event.preventDefault();
+      input.focus();
+    }
+
+    window.addEventListener("keydown", focusMenuSearch);
+    return () => window.removeEventListener("keydown", focusMenuSearch);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -321,27 +339,51 @@ export function PizzaShop() {
           </button>
         </div>
 
-        <div className="menu-toolbar">
-          <div className="filter-row" aria-label="Filtres de la carte">
-            {([
-              ["all", "Toutes"],
-              ["classic", "Les classiques"],
-              ["veggie", "Végétariennes"],
-              ["spicy", "Ça pique"],
-            ] as const).map(([id, label]) => (
-              <button
-                key={id}
-                className={`filter ${activeFilter === id ? "active" : ""}`}
-                aria-pressed={activeFilter === id}
-                onClick={() => setActiveFilter(id)}
-              >
-                {label}
+        <div className="menu-discovery">
+          <label className="sr-only" htmlFor="menu-search">Rechercher une pizza ou un ingrédient</label>
+          <div className="menu-search">
+            <Search size={19} aria-hidden="true" />
+            <input
+              id="menu-search"
+              data-page-search
+              aria-keyshortcuts="/"
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Une pizza, un ingrédient…"
+              autoComplete="off"
+            />
+            {searchQuery ? (
+              <button type="button" aria-label="Effacer la recherche" onClick={() => setSearchQuery("")}>
+                <X size={16} />
               </button>
-            ))}
+            ) : (
+              <kbd aria-hidden="true">/</kbd>
+            )}
           </div>
-          <span className="recipe-count" aria-live="polite">
-            {filteredPizzas.length} recette{filteredPizzas.length > 1 ? "s" : ""}
-          </span>
+
+          <div className="menu-toolbar">
+            <div className="filter-row" aria-label="Filtres de la carte">
+              {([
+                ["all", "Toutes"],
+                ["classic", "Les classiques"],
+                ["veggie", "Végétariennes"],
+                ["spicy", "Ça pique"],
+              ] as const).map(([id, label]) => (
+                <button
+                  key={id}
+                  className={`filter ${activeFilter === id ? "active" : ""}`}
+                  aria-pressed={activeFilter === id}
+                  onClick={() => setActiveFilter(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <span className="recipe-count" aria-live="polite">
+              {filteredPizzas.length} recette{filteredPizzas.length > 1 ? "s" : ""}
+            </span>
+          </div>
         </div>
 
         <div className="pizza-grid">
@@ -383,8 +425,11 @@ export function PizzaShop() {
           {filteredPizzas.length === 0 && (
             <div className="menu-empty" role="status">
               <PizzaIcon size={24} />
-              <h3>Aucune pizza ici pour l’instant</h3>
-              <button type="button" onClick={() => setActiveFilter("all")}>Voir toute la carte</button>
+              <h3>{searchQuery ? `Rien pour « ${searchQuery.trim()} »` : "Aucune pizza ici pour l’instant"}</h3>
+              <p>Essaie un autre ingrédient ou reviens à toute la carte.</p>
+              <button type="button" onClick={() => { setActiveFilter("all"); setSearchQuery(""); }}>
+                Réinitialiser la recherche
+              </button>
             </div>
           )}
         </div>

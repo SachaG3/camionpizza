@@ -48,6 +48,43 @@ export const pizzas: Pizza[] = [
     tags: ["Végé", "Fraîche"],
     accent: "#4e7e55",
   },
+  {
+    id: "nduja",
+    name: "La Copie Double",
+    description: "Tomate, mozzarella fumée, nduja relevée et basilic frais.",
+    price: 10.5,
+    image: "/images/pizza-diavola.jpg",
+    tags: ["Épicée", "Signature"],
+    accent: "#c33b2a",
+  },
+  {
+    id: "chicken",
+    name: "La Pause Déj’",
+    description: "Poulet mariné, ananas rôti, oignon rouge et sauce barbecue.",
+    price: 11,
+    image: "/images/pizza-campus.jpg",
+    tags: ["Sucrée-salée", "Généreuse"],
+    accent: "#dc7a2c",
+    popular: true,
+  },
+  {
+    id: "tomato",
+    name: "La Dernière Heure",
+    description: "Tomates cerises, mozzarella, ail rôti, origan et huile verte.",
+    price: 9.5,
+    image: "/images/pizza-tomato.jpg",
+    tags: ["Végé", "Fraîche"],
+    accent: "#c94b32",
+  },
+  {
+    id: "four-cheese",
+    name: "La Quatre Matières",
+    description: "Mozzarella, chèvre, gorgonzola et parmesan affiné.",
+    price: 11,
+    image: "/images/pizza-four-cheese.jpg",
+    tags: ["Végé", "Crémeuse"],
+    accent: "#bd8a3e",
+  },
 ];
 
 export const sizes = [

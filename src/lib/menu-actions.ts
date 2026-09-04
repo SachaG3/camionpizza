@@ -9,9 +9,25 @@ const tagsByFilter: Record<Exclude<MenuFilter, "all">, string> = {
   spicy: "Épicée",
 };
 
-export function filterPizzas(menu: Pizza[], filter: MenuFilter) {
-  if (filter === "all") return menu;
-  return menu.filter((pizza) => pizza.tags.includes(tagsByFilter[filter]));
+function normalizeSearch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("fr-FR")
+    .trim();
+}
+
+export function filterPizzas(menu: Pizza[], filter: MenuFilter, query = "") {
+  const categoryMatches = filter === "all"
+    ? menu
+    : menu.filter((pizza) => pizza.tags.includes(tagsByFilter[filter]));
+  const normalizedQuery = normalizeSearch(query);
+
+  if (!normalizedQuery) return categoryMatches;
+
+  return categoryMatches.filter((pizza) =>
+    normalizeSearch([pizza.name, pizza.description, ...pizza.tags].join(" ")).includes(normalizedQuery),
+  );
 }
 
 export function createDefaultCartLine(pizza: Pizza): CartLine {
