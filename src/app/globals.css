@@ -127,15 +127,22 @@ button { font: inherit; }
 .section-heading h2 { margin: 0; font-family: var(--font-fraunces), serif; font-size: clamp(38px, 4vw, 58px); line-height: 1; letter-spacing: -.035em; font-weight: 620; }
 .compose-shortcut { border: 1px solid var(--ink); background: transparent; min-height: 46px; padding: 0 18px; border-radius: 99px; display: flex; align-items: center; gap: 8px; font-weight: 750; cursor: pointer; transition: .2s; }
 .compose-shortcut:hover { background: var(--ink); color: white; }
-.filter-row { display: flex; gap: 8px; margin: 38px 0 28px; overflow-x: auto; scrollbar-width: none; }
+.menu-toolbar { margin: 38px 0 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.filter-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .filter { flex: none; border: 1px solid var(--line); background: transparent; padding: 9px 15px; border-radius: 99px; color: var(--muted); cursor: pointer; }
 .filter.active { background: var(--ink); color: white; border-color: var(--ink); }
+.filter:focus-visible, .quick-add:focus-visible, .pizza-open:focus-visible { outline: 3px solid rgba(217,74,49,.28); outline-offset: 3px; }
+.recipe-count { flex: none; color: var(--muted); font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .08em; }
 .pizza-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(18px, 2vw, 30px); }
 .pizza-card { min-width: 0; }
-.pizza-image { display: block; width: 100%; aspect-ratio: .92; border: 0; padding: 0; position: relative; overflow: hidden; border-radius: 22px; cursor: pointer; background: #e8e0d3; }
+.pizza-image { display: block; width: 100%; aspect-ratio: .92; border: 0; padding: 0; position: relative; overflow: hidden; border-radius: 22px; background: #e8e0d3; box-shadow: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px, rgba(0,0,0,.1) 0 4px 8px; transition: box-shadow .25s, transform .25s; }
+.pizza-card:hover .pizza-image { transform: translateY(-3px); box-shadow: rgba(0,0,0,.03) 0 0 0 1px, rgba(0,0,0,.06) 0 5px 12px, rgba(0,0,0,.14) 0 12px 22px; }
 .pizza-image:hover img { transform: scale(1.045); }
-.popular-tag { position: absolute; left: 12px; top: 12px; display: flex; align-items: center; gap: 5px; background: var(--paper); color: var(--tomato-dark); border-radius: 99px; padding: 7px 10px; font-size: 11px; font-weight: 800; }
-.quick-add { position: absolute; right: 12px; bottom: 12px; width: 43px; height: 43px; border-radius: 50%; background: var(--paper); color: var(--ink); display: grid; place-items: center; box-shadow: 0 7px 20px rgba(30, 25, 20, .15); transition: .2s; }
+.pizza-open { position: absolute; inset: 0; z-index: 1; width: 100%; border: 0; background: transparent; cursor: pointer; }
+.popular-tag { position: absolute; z-index: 2; left: 12px; top: 12px; display: flex; align-items: center; gap: 5px; background: var(--paper); color: var(--tomato-dark); border-radius: 99px; padding: 7px 10px; font-size: 11px; font-weight: 800; }
+.customize-hint { position: absolute; z-index: 2; left: 13px; bottom: 14px; padding: 7px 10px; border-radius: 99px; background: rgba(37,35,31,.8); color: white; opacity: 0; transform: translateY(5px); backdrop-filter: blur(6px); font-size: 9px; font-weight: 750; transition: .2s; pointer-events: none; }
+.pizza-image:hover .customize-hint, .pizza-open:focus-visible ~ .customize-hint { opacity: 1; transform: translateY(0); }
+.quick-add { position: absolute; z-index: 3; right: 12px; bottom: 12px; width: 43px; height: 43px; border: 0; border-radius: 50%; background: var(--paper); color: var(--ink); display: grid; place-items: center; cursor: pointer; box-shadow: 0 7px 20px rgba(30, 25, 20, .15); transition: .2s; }
 .pizza-image:hover .quick-add { background: var(--tomato); color: white; transform: rotate(90deg); }
 .pizza-info { padding: 17px 2px 0; }
 .pizza-title-row { display: flex; gap: 12px; justify-content: space-between; align-items: baseline; }
@@ -144,6 +151,10 @@ button { font: inherit; }
 .pizza-info > p { min-height: 44px; margin: 8px 0 13px; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .tag-row { display: flex; gap: 6px; }
 .tag-row span { background: var(--cream); color: var(--olive); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .05em; }
+.menu-empty { grid-column: 1 / -1; min-height: 280px; border: 1px dashed var(--line); border-radius: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); text-align: center; }
+.menu-empty > svg { color: var(--tomato); }
+.menu-empty h3 { margin: 13px 0 10px; font-family: var(--font-fraunces), serif; color: var(--ink); font-size: 22px; }
+.menu-empty button { border: 0; border-bottom: 1px solid var(--ink); padding: 3px 0; background: transparent; cursor: pointer; font-size: 11px; font-weight: 750; }
 
 .promise-band { background: var(--olive); color: white; padding: 54px max(5vw, calc((100vw - 1290px) / 2)); display: flex; align-items: center; justify-content: space-between; gap: 50px; }
 .promise-band > p { margin: 0; font-family: var(--font-fraunces), serif; font-style: italic; font-size: clamp(30px, 3vw, 44px); }
@@ -318,9 +329,12 @@ footer small { justify-self: end; color: #aaa69f; }
   .compose-shortcut { width: 46px; height: 46px; min-height: 46px; padding: 0; justify-content: center; }
   .compose-shortcut { font-size: 0; }
   .section-heading h2 { font-size: 41px; }
-  .filter-row { margin-top: 28px; }
+  .menu-toolbar { margin-top: 28px; }
+  .filter-row { margin-right: -16px; padding-right: 16px; }
+  .recipe-count { display: none; }
   .pizza-grid { grid-template-columns: 1fr; gap: 40px; }
   .pizza-image { aspect-ratio: 1.08; border-radius: 20px; }
+  .customize-hint { display: none; }
   .pizza-info > p { min-height: 0; }
   .promise-band { padding: 46px 20px; flex-direction: column; gap: 30px; }
   .promise-band > div { width: 100%; }

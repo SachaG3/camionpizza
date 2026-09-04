@@ -13,6 +13,7 @@ import {
   MapPin,
   Minus,
   Plus,
+  Pizza as PizzaIcon,
   ShoppingBag,
   Sparkles,
   UserRound,
@@ -44,6 +45,11 @@ import {
   type CartLine,
 } from "@/lib/cart";
 import type { PublicLoyaltyUser } from "@/lib/loyalty-store";
+import {
+  createDefaultCartLine,
+  filterPizzas,
+  type MenuFilter,
+} from "@/lib/menu-actions";
 
 const euro = (value: number) =>
   new Intl.NumberFormat("fr-FR", {
@@ -64,13 +70,18 @@ export function PizzaShop() {
   const [cartOpen, setCartOpen] = useState(false);
   const [pickupTime, setPickupTime] = useState("12:15");
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
-  const [toast, setToast] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<MenuFilter>("all");
   const [accountOpen, setAccountOpen] = useState(false);
   const [user, setUser] = useState<PublicLoyaltyUser | null>(null);
   const [loyaltyEarned, setLoyaltyEarned] = useState(0);
 
   const itemCount = cartCount(cart);
   const cartValue = cartTotal(cart);
+  const filteredPizzas = useMemo(
+    () => filterPizzas(pizzas, activeFilter),
+    [activeFilter],
+  );
 
   useEffect(() => {
     const restoreCart = window.setTimeout(() => {
@@ -156,8 +167,14 @@ export function PizzaShop() {
       }),
     );
     setComposerOpen(false);
-    setToast(true);
-    window.setTimeout(() => setToast(false), 2800);
+    setToast(`${selectedPizza.name} ajoutée au panier`);
+    window.setTimeout(() => setToast(null), 2800);
+  }
+
+  function quickAdd(pizza: Pizza) {
+    setCart((current) => addCartLine(current, createDefaultCartLine(pizza)));
+    setToast(`${pizza.name} ajoutée en Solo`);
+    window.setTimeout(() => setToast(null), 2800);
   }
 
   async function placeOrder() {
@@ -191,7 +208,7 @@ export function PizzaShop() {
             role="status"
           >
             <span className="toast-icon"><Check size={16} /></span>
-            Pizza ajoutée au panier
+            {toast}
           </motion.div>
         )}
       </AnimatePresence>
@@ -269,24 +286,38 @@ export function PizzaShop() {
           </button>
         </div>
 
-        <div className="filter-row" aria-label="Filtres de la carte">
-          <button className="filter active">Toutes</button>
-          <button className="filter">Les classiques</button>
-          <button className="filter">Végétariennes</button>
-          <button className="filter">Ça pique</button>
+        <div className="menu-toolbar">
+          <div className="filter-row" aria-label="Filtres de la carte">
+            {([
+              ["all", "Toutes"],
+              ["classic", "Les classiques"],
+              ["veggie", "Végétariennes"],
+              ["spicy", "Ça pique"],
+            ] as const).map(([id, label]) => (
+              <button
+                key={id}
+                className={`filter ${activeFilter === id ? "active" : ""}`}
+                aria-pressed={activeFilter === id}
+                onClick={() => setActiveFilter(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <span className="recipe-count" aria-live="polite">
+            {filteredPizzas.length} recette{filteredPizzas.length > 1 ? "s" : ""}
+          </span>
         </div>
 
         <div className="pizza-grid">
-          {pizzas.map((pizza, index) => (
+          {filteredPizzas.map((pizza) => (
             <motion.article
               key={pizza.id}
               className="pizza-card"
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ delay: index * 0.06 }}
+              layout
+              transition={{ layout: { duration: .25 } }}
             >
-              <button className="pizza-image" onClick={() => openComposer(pizza)}>
+              <div className="pizza-image">
                 <Image
                   src={pizza.image}
                   alt={`Pizza ${pizza.name}`}
@@ -296,8 +327,12 @@ export function PizzaShop() {
                 {pizza.popular && (
                   <span className="popular-tag"><Flame size={14} /> Populaire</span>
                 )}
-                <span className="quick-add"><Plus size={20} /></span>
-              </button>
+                <button className="pizza-open" type="button" aria-label={`Personnaliser ${pizza.name}`} onClick={() => openComposer(pizza)} />
+                <span className="customize-hint">Personnaliser</span>
+                <button className="quick-add" type="button" aria-label={`Ajouter ${pizza.name} en taille Solo`} onClick={() => quickAdd(pizza)}>
+                  <Plus size={20} />
+                </button>
+              </div>
               <div className="pizza-info">
                 <div className="pizza-title-row">
                   <h3>{pizza.name}</h3>
@@ -310,6 +345,13 @@ export function PizzaShop() {
               </div>
             </motion.article>
           ))}
+          {filteredPizzas.length === 0 && (
+            <div className="menu-empty" role="status">
+              <PizzaIcon size={24} />
+              <h3>Aucune pizza ici pour l’instant</h3>
+              <button type="button" onClick={() => setActiveFilter("all")}>Voir toute la carte</button>
+            </div>
+          )}
         </div>
       </section>
 
