@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
+  BadgeEuro,
   CalendarClock,
   Check,
   ChevronDown,
@@ -54,6 +55,16 @@ import {
   filterPizzas,
   type MenuFilter,
 } from "@/lib/menu-actions";
+import {
+  COMBO_DISCOUNT,
+  emptyAddonSelection,
+  orderAddons,
+  orderTotal,
+  parseStoredAddons,
+  selectedAddons,
+  type AddonSelection,
+  type OrderAddon,
+} from "@/lib/order-addons";
 
 const euro = (value: number) =>
   new Intl.NumberFormat("fr-FR", {
@@ -83,9 +94,15 @@ export function PizzaShop() {
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationId, setLocationId] = useState(locations[0].id);
   const [locationReady, setLocationReady] = useState(false);
+  const [addons, setAddons] = useState<AddonSelection>(emptyAddonSelection);
+  const [addonsReady, setAddonsReady] = useState(false);
+  const [confirmedAddons, setConfirmedAddons] = useState<string[]>([]);
 
   const itemCount = cartCount(cart);
-  const cartValue = cartTotal(cart);
+  const pizzaValue = cartTotal(cart);
+  const cartValue = orderTotal(cart, addons);
+  const chosenAddons = selectedAddons(addons);
+  const hasCombo = Boolean(addons.drinkId && addons.dessertId);
   const filteredPizzas = useMemo(
     () => filterPizzas(pizzas, activeFilter, searchQuery),
     [activeFilter, searchQuery],
@@ -109,6 +126,20 @@ export function PizzaShop() {
       window.localStorage.setItem("fourchette-cart", JSON.stringify(cart));
     }
   }, [cart, cartReady]);
+
+  useEffect(() => {
+    const restoreAddons = window.setTimeout(() => {
+      setAddons(parseStoredAddons(window.localStorage.getItem("fourchette-addons")));
+      setAddonsReady(true);
+    }, 0);
+    return () => window.clearTimeout(restoreAddons);
+  }, []);
+
+  useEffect(() => {
+    if (addonsReady) {
+      window.localStorage.setItem("fourchette-addons", JSON.stringify(addons));
+    }
+  }, [addons, addonsReady]);
 
   useEffect(() => {
     const restoreLocation = window.setTimeout(() => {
@@ -230,6 +261,14 @@ export function PizzaShop() {
     setLocationOpen(false);
   }
 
+  function chooseAddon(item: OrderAddon) {
+    const key = item.kind === "drink" ? "drinkId" : "dessertId";
+    setAddons((current) => ({
+      ...current,
+      [key]: current[key] === item.id ? null : item.id,
+    }));
+  }
+
   async function placeOrder() {
     setLoyaltyEarned(0);
     if (user) {
@@ -244,8 +283,11 @@ export function PizzaShop() {
         setLoyaltyEarned(itemCount);
       }
     }
-    setOrderNumber(String(Math.floor(100 + Math.random() * 900)));
+    const randomOrder = window.crypto.getRandomValues(new Uint32Array(1))[0] % 900;
+    setConfirmedAddons(chosenAddons.map((item) => item.name));
+    setOrderNumber(String(100 + randomOrder));
     setCart([]);
+    setAddons(emptyAddonSelection);
     setCartOpen(false);
   }
 
@@ -496,6 +538,41 @@ export function PizzaShop() {
                   ))}
                 </div>
 
+                <section className="pause-formula" aria-labelledby="formula-title">
+                  <div className="formula-heading">
+                    <span><BadgeEuro size={18} /></span>
+                    <div>
+                      <h3 id="formula-title">Complète ta pause</h3>
+                      <p>Une boisson + un dessert = {euro(COMBO_DISCOUNT)} offert</p>
+                    </div>
+                    {hasCombo && <strong>Formule</strong>}
+                  </div>
+                  {(["drink", "dessert"] as const).map((kind) => (
+                    <div className="addon-group" key={kind}>
+                      <small>{kind === "drink" ? "Ta boisson" : "La touche sucrée"}</small>
+                      <div className="addon-list">
+                        {orderAddons.filter((item) => item.kind === kind).map((item) => {
+                          const selected = addons[kind === "drink" ? "drinkId" : "dessertId"] === item.id;
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className={selected ? "selected" : ""}
+                              aria-pressed={selected}
+                              onClick={() => chooseAddon(item)}
+                            >
+                              <span className="addon-symbol" aria-hidden="true">{item.symbol}</span>
+                              <span><strong>{item.name}</strong><small>{item.detail}</small></span>
+                              <b>+{euro(item.price)}</b>
+                              {selected && <i><Check size={12} /></i>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </section>
+
                 <section className="pickup-section">
                   <div className="pickup-heading">
                     <span><CalendarClock size={18} /></span>
@@ -524,6 +601,13 @@ export function PizzaShop() {
 
           {cart.length > 0 && (
             <div className="cart-footer">
+              {(chosenAddons.length > 0 || hasCombo) && (
+                <div className="cart-breakdown">
+                  <span>Pizzas <b>{euro(pizzaValue)}</b></span>
+                  {chosenAddons.map((item) => <span key={item.id}>{item.name} <b>{euro(item.price)}</b></span>)}
+                  {hasCombo && <span className="combo-saving">Remise formule <b>−{euro(COMBO_DISCOUNT)}</b></span>}
+                </div>
+              )}
               <div className="cart-total-row"><span>Total</span><strong>{euro(cartValue)}</strong></div>
               <p>Paiement au camion · retrait à {pickupTime}</p>
               <button className="checkout-button" onClick={placeOrder}>
@@ -542,6 +626,12 @@ export function PizzaShop() {
               <p className="section-kicker">C’est dans le four</p>
               <h2 id="order-title">Commande n°{orderNumber}</h2>
               <p>On t’attend {selectedLocation.dayLabel.toLowerCase()} à <strong>{pickupTime}</strong>, {selectedLocation.pickupLabel.toLowerCase()}.</p>
+              {confirmedAddons.length > 0 && (
+                <div className="confirmed-formula">
+                  <span>En plus de tes pizzas</span>
+                  <strong>{confirmedAddons.join(" · ")}</strong>
+                </div>
+              )}
               {loyaltyEarned > 0 && <p className="loyalty-earned">+{loyaltyEarned} tampon{loyaltyEarned > 1 ? "s" : ""} ajouté{loyaltyEarned > 1 ? "s" : ""} à ta carte</p>}
               <div className="order-ticket"><span>À présenter au camion</span><strong>#{orderNumber}</strong></div>
               <button onClick={() => setOrderNumber(null)}>Retourner à la carte</button>

@@ -73,7 +73,9 @@ body {
 }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { font: inherit; }
-[data-slot="dialog-content"][data-closed], [data-slot="dialog-overlay"][data-closed] { display: none; }
+[data-slot="dialog-content"][data-closed], [data-slot="dialog-overlay"][data-closed],
+[data-slot="sheet-content"][data-closed], [data-slot="sheet-overlay"][data-closed] { display: none; }
+[data-slot="sheet-content"][data-open], [data-slot="sheet-overlay"][data-open] { opacity: 1 !important; }
 
 .site-shell { min-height: 100vh; overflow: hidden; }
 .topbar {
@@ -233,6 +235,24 @@ footer small { justify-self: end; color: #aaa69f; }
 .line-stepper { width: 83px; height: 27px; display: grid; grid-template-columns: 27px 1fr 27px; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: white; }
 .line-stepper button { height: 100%; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; }
 .line-stepper span { text-align: center; font-size: 11px; font-weight: 800; }
+.pause-formula { margin-top: 20px; padding: 17px; border: 1px solid #e7d8b3; border-radius: 18px; background: #fffaf0; }
+.formula-heading { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 10px; }
+.formula-heading > span { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: #f3cc4b; color: var(--ink); }
+.formula-heading h3 { margin: 0; font-family: var(--font-fraunces), serif; font-size: 18px; }
+.formula-heading p { margin: 2px 0 0; color: var(--muted); font-size: 9px; }
+.formula-heading > strong { padding: 5px 8px; border-radius: 99px; background: var(--olive); color: white; text-transform: uppercase; letter-spacing: .06em; font-size: 8px; }
+.addon-group { margin-top: 15px; }
+.addon-group > small { display: block; margin-bottom: 7px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: 8px; font-weight: 850; }
+.addon-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.addon-list > button { min-width: 0; min-height: 88px; padding: 9px 8px; position: relative; border: 1px solid var(--line); border-radius: 13px; display: flex; flex-direction: column; align-items: flex-start; background: white; color: var(--ink); text-align: left; cursor: pointer; transition: border-color .16s, background .16s, transform .16s; }
+.addon-list > button:hover { transform: translateY(-1px); border-color: #b7aa91; }
+.addon-list > button.selected { border-color: var(--tomato); background: #fff4ed; box-shadow: 0 0 0 2px rgba(217,74,49,.07); }
+.addon-symbol { font-size: 19px; line-height: 1; }
+.addon-list > button > span:nth-child(2) { min-width: 0; margin-top: 8px; display: flex; flex-direction: column; }
+.addon-list > button strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.addon-list > button small { margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 8px; }
+.addon-list > button b { margin-top: auto; padding-top: 7px; color: var(--tomato); font-size: 9px; }
+.addon-list > button i { width: 19px; height: 19px; position: absolute; top: 7px; right: 7px; border-radius: 50%; display: grid; place-items: center; background: var(--tomato); color: white; font-style: normal; }
 .pickup-section { margin-top: 23px; padding: 17px; border-radius: 16px; background: var(--cream); }
 .pickup-heading { display: flex; align-items: center; gap: 11px; }
 .pickup-heading > span { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--olive); color: white; }
@@ -247,6 +267,10 @@ footer small { justify-self: end; color: #aaa69f; }
 .cart-loyalty p { margin: 2px 0 0; color: var(--muted); font-size: 9px; line-height: 1.4; }
 .cart-loyalty > button { border: 0; border-bottom: 1px solid currentColor; padding: 2px 0; background: transparent; color: var(--tomato); cursor: pointer; font-size: 9px; font-weight: 800; white-space: nowrap; }
 .cart-footer { position: absolute; left: 0; right: 0; bottom: 0; padding: 17px 25px max(18px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(255,253,248,.97); backdrop-filter: blur(12px); }
+.cart-breakdown { margin-bottom: 9px; padding-bottom: 9px; border-bottom: 1px solid var(--line); display: grid; gap: 3px; }
+.cart-breakdown span { display: flex; justify-content: space-between; color: var(--muted); font-size: 9px; }
+.cart-breakdown b { color: var(--ink); font-weight: 750; }
+.cart-breakdown .combo-saving, .cart-breakdown .combo-saving b { color: var(--olive); font-weight: 800; }
 .cart-total-row { display: flex; align-items: baseline; justify-content: space-between; }
 .cart-total-row span { font-size: 12px; font-weight: 750; }
 .cart-total-row strong { font-family: var(--font-fraunces), serif; font-size: 27px; }
@@ -270,6 +294,9 @@ footer small { justify-self: end; color: #aaa69f; }
 .order-ticket strong { font-family: var(--font-fraunces), serif; font-size: 26px; }
 .order-card > button { width: 100%; height: 48px; border: 0; border-radius: 11px; background: var(--ink); color: white; cursor: pointer; font-weight: 750; }
 .order-card .loyalty-earned { margin: -10px auto 18px !important; padding: 8px 11px; border-radius: 9px; background: #edf3e9; color: var(--olive) !important; font-size: 11px !important; font-weight: 800; }
+.confirmed-formula { margin: -8px 0 18px; padding: 11px 13px; border-radius: 11px; display: flex; flex-direction: column; gap: 3px; background: #fff4db; }
+.confirmed-formula span { color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-size: 8px; font-weight: 800; }
+.confirmed-formula strong { font-family: var(--font-fraunces), serif; font-size: 14px; }
 
 .account-dialog { width: min(100% - 24px, 450px) !important; max-width: 450px !important; gap: 0 !important; padding: 0 !important; overflow: hidden; border-radius: 25px !important; background: var(--paper) !important; box-shadow: 0 30px 90px rgba(0,0,0,.24) !important; }
 .account-header, .loyalty-profile > [data-slot="dialog-header"] { padding: 31px 31px 19px; text-align: center; align-items: center; }

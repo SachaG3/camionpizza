@@ -1,6 +1,6 @@
 # Fourchette — Pizza campus
 
-Prototype mobile-first d’un camion à pizzas destiné aux lycéens et étudiants. Le parcours principal permet de choisir le passage du camion, parcourir et rechercher huit recettes, ajouter directement une pizza ou la personnaliser (taille, base, protéine et garnitures), gérer un panier persistant et confirmer un créneau de retrait.
+Prototype mobile-first d’un camion à pizzas destiné aux lycéens et étudiants. Le parcours principal permet de choisir le passage du camion, parcourir et rechercher huit recettes, ajouter directement une pizza ou la personnaliser, compléter la commande avec une boisson et un dessert, puis confirmer un créneau de retrait.
 
 ## Lancer le projet
 
@@ -40,6 +40,6 @@ Ils sont enregistrés dans Hermes sous les noms `pizza-shadcn`, `pizza-nextjs`, 
 
 ## Portée actuelle
 
-Le prototype couvre un catalogue de huit recettes avec recherche accent/casse tolérante, filtres combinables, configurateur, panier persistant, retrait et confirmation de commande simulée. La commande reste possible sans compte. Un compte facultatif permet de conserver une carte fidélité côté serveur : mots de passe hachés avec `scrypt`, sessions aléatoires stockées sous forme de hash et cookie `HttpOnly`, `Secure`, `SameSite=Lax`. Les comptes de démonstration sont conservés dans `.data/`, ignoré par Git.
+Le prototype couvre un catalogue de huit recettes avec recherche accent/casse tolérante, filtres combinables, configurateur, panier persistant, formule boisson-dessert avec remise, retrait et confirmation de commande simulée. Les compléments sont persistés avec le panier mais ne comptent pas comme des pizzas dans la fidélité. La commande reste possible sans compte. Un compte facultatif permet de conserver une carte fidélité côté serveur : mots de passe hachés avec `scrypt`, sessions aléatoires stockées sous forme de hash et cookie `HttpOnly`, `Secure`, `SameSite=Lax`. Les comptes de démonstration sont conservés dans `.data/`, ignoré par Git.
 
 Aucun paiement réel n’est connecté.
