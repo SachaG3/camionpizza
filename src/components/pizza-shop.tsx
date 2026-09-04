@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { AccountDialog } from "@/components/account-dialog";
+import { LocationDialog } from "@/components/location-dialog";
 
 import {
   bases,
@@ -29,6 +30,7 @@ import {
   toppings,
   type Pizza,
 } from "@/data/menu";
+import { locations, parseSelectedLocationId } from "@/data/locations";
 import {
   Sheet,
   SheetContent,
@@ -68,19 +70,26 @@ export function PizzaShop() {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartReady, setCartReady] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [pickupTime, setPickupTime] = useState("12:15");
+  const [pickupTime, setPickupTime] = useState(locations[0].slots[0]);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<MenuFilter>("all");
   const [accountOpen, setAccountOpen] = useState(false);
   const [user, setUser] = useState<PublicLoyaltyUser | null>(null);
   const [loyaltyEarned, setLoyaltyEarned] = useState(0);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const [locationId, setLocationId] = useState(locations[0].id);
+  const [locationReady, setLocationReady] = useState(false);
 
   const itemCount = cartCount(cart);
   const cartValue = cartTotal(cart);
   const filteredPizzas = useMemo(
     () => filterPizzas(pizzas, activeFilter),
     [activeFilter],
+  );
+  const selectedLocation = useMemo(
+    () => locations.find((location) => location.id === locationId) ?? locations[0],
+    [locationId],
   );
 
   useEffect(() => {
@@ -97,6 +106,25 @@ export function PizzaShop() {
       window.localStorage.setItem("fourchette-cart", JSON.stringify(cart));
     }
   }, [cart, cartReady]);
+
+  useEffect(() => {
+    const restoreLocation = window.setTimeout(() => {
+      const restoredId = parseSelectedLocationId(
+        window.localStorage.getItem("fourchette-location"),
+      );
+      const restored = locations.find((location) => location.id === restoredId) ?? locations[0];
+      setLocationId(restored.id);
+      setPickupTime(restored.slots[0]);
+      setLocationReady(true);
+    }, 0);
+    return () => window.clearTimeout(restoreLocation);
+  }, []);
+
+  useEffect(() => {
+    if (locationReady) {
+      window.localStorage.setItem("fourchette-location", locationId);
+    }
+  }, [locationId, locationReady]);
 
   useEffect(() => {
     let active = true;
@@ -177,6 +205,13 @@ export function PizzaShop() {
     window.setTimeout(() => setToast(null), 2800);
   }
 
+  function selectLocation(id: string) {
+    const location = locations.find((item) => item.id === id) ?? locations[0];
+    setLocationId(location.id);
+    setPickupTime(location.slots[0]);
+    setLocationOpen(false);
+  }
+
   async function placeOrder() {
     setLoyaltyEarned(0);
     if (user) {
@@ -219,11 +254,11 @@ export function PizzaShop() {
           <span>Fourchette</span>
         </a>
 
-        <button className="location-pill" type="button">
+        <button className="location-pill" type="button" onClick={() => setLocationOpen(true)}>
           <MapPin size={16} />
           <span className="location-copy">
-            <strong>Lycée Jean-Moulin</strong>
-            <small>Aujourd’hui · 11:30–14:00</small>
+            <strong>{selectedLocation.name}</strong>
+            <small>{selectedLocation.dayLabel} · {selectedLocation.hours}</small>
           </span>
           <ChevronDown size={15} />
         </button>
@@ -419,10 +454,10 @@ export function PizzaShop() {
                 <section className="pickup-section">
                   <div className="pickup-heading">
                     <span><CalendarClock size={18} /></span>
-                    <div><h3>Heure de retrait</h3><p>Lycée Jean-Moulin · portail principal</p></div>
+                    <div><h3>Heure de retrait</h3><p>{selectedLocation.name} · {selectedLocation.pickupLabel}</p></div>
                   </div>
                   <div className="time-grid">
-                    {["12:15", "12:30", "12:45", "13:00"].map((time) => (
+                    {selectedLocation.slots.map((time) => (
                       <button key={time} className={pickupTime === time ? "selected" : ""} onClick={() => setPickupTime(time)}>
                         {time}
                       </button>
@@ -461,7 +496,7 @@ export function PizzaShop() {
               <span className="order-check"><Check size={30} /></span>
               <p className="section-kicker">C’est dans le four</p>
               <h2 id="order-title">Commande n°{orderNumber}</h2>
-              <p>On t’attend à <strong>{pickupTime}</strong> devant le portail principal.</p>
+              <p>On t’attend {selectedLocation.dayLabel.toLowerCase()} à <strong>{pickupTime}</strong>, {selectedLocation.pickupLabel.toLowerCase()}.</p>
               {loyaltyEarned > 0 && <p className="loyalty-earned">+{loyaltyEarned} tampon{loyaltyEarned > 1 ? "s" : ""} ajouté{loyaltyEarned > 1 ? "s" : ""} à ta carte</p>}
               <div className="order-ticket"><span>À présenter au camion</span><strong>#{orderNumber}</strong></div>
               <button onClick={() => setOrderNumber(null)}>Retourner à la carte</button>
@@ -471,6 +506,7 @@ export function PizzaShop() {
       </AnimatePresence>
 
       <AccountDialog open={accountOpen} onOpenChange={setAccountOpen} user={user} onUserChange={setUser} />
+      <LocationDialog open={locationOpen} onOpenChange={setLocationOpen} selectedId={locationId} onSelect={selectLocation} />
 
       <Sheet open={composerOpen} onOpenChange={setComposerOpen}>
         <SheetContent className="composer-sheet" side="right">

@@ -1,6 +1,6 @@
 # Fourchette — Pizza campus
 
-Prototype mobile-first d’un camion à pizzas destiné aux lycéens et étudiants. Le parcours principal permet de filtrer la carte, ajouter directement une recette ou personnaliser une pizza (taille, base, protéine et garnitures), calculer son prix, gérer un panier persistant et confirmer un créneau de retrait.
+Prototype mobile-first d’un camion à pizzas destiné aux lycéens et étudiants. Le parcours principal permet de choisir le passage du camion, filtrer la carte, ajouter directement une recette ou personnaliser une pizza (taille, base, protéine et garnitures), calculer son prix, gérer un panier persistant et confirmer un créneau de retrait.
 
 ## Lancer le projet
 

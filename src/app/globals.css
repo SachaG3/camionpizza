@@ -73,6 +73,7 @@ body {
 }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { font: inherit; }
+[data-slot="dialog-content"][data-closed], [data-slot="dialog-overlay"][data-closed] { display: none; }
 
 .site-shell { min-height: 100vh; overflow: hidden; }
 .topbar {
@@ -294,6 +295,27 @@ footer small { justify-self: end; color: #aaa69f; }
 .reward-summary span { color: var(--muted); font-size: 9px; }
 .logout-button { margin: 0 auto; border: 0; border-bottom: 1px solid var(--muted); padding: 3px 0; display: flex; align-items: center; gap: 6px; background: transparent; color: var(--muted); cursor: pointer; font-size: 10px; }
 
+.location-dialog { width: min(100% - 24px, 540px) !important; max-width: 540px !important; gap: 0 !important; padding: 0 !important; overflow: hidden; border-radius: 25px !important; background: var(--paper) !important; box-shadow: 0 30px 90px rgba(0,0,0,.24) !important; }
+.location-header { padding: 29px 34px 20px; text-align: center; align-items: center; border-bottom: 1px solid var(--line); }
+.location-illustration { width: 50px; height: 50px; margin-bottom: 5px; border-radius: 16px 16px 16px 5px; display: grid; place-items: center; background: var(--olive); color: white; transform: rotate(-3deg); box-shadow: 4px 5px 0 var(--ink); }
+.location-dialog [data-slot="dialog-title"] { font-family: var(--font-fraunces), serif; font-size: 30px; font-weight: 650; letter-spacing: -.025em; }
+.location-dialog [data-slot="dialog-description"] { max-width: 355px; font-size: 11px; line-height: 1.55; }
+.location-list { padding: 16px 22px 10px; display: grid; gap: 8px; }
+.location-option { width: 100%; min-height: 76px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 15px; display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 10px; background: white; color: var(--ink); text-align: left; cursor: pointer; transition: border-color .18s, background .18s, transform .18s; }
+.location-option:hover { transform: translateY(-1px); border-color: #ada599; }
+.location-option.selected { border-color: var(--tomato); background: #fff7f2; box-shadow: 0 0 0 2px rgba(217,74,49,.08); }
+.route-marker { align-self: stretch; display: grid; place-items: center; position: relative; }
+.route-marker i { width: 30px; height: 30px; z-index: 1; border-radius: 50%; display: grid; place-items: center; background: var(--cream); color: var(--muted); font-style: normal; font-size: 10px; font-weight: 850; }
+.location-option.selected .route-marker i { background: var(--tomato); color: white; }
+.location-option-copy { min-width: 0; display: flex; flex-direction: column; }
+.location-day { margin-bottom: 2px; color: var(--tomato); text-transform: uppercase; letter-spacing: .09em; font-size: 8px; font-weight: 850; }
+.location-option-copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-fraunces), serif; font-size: 17px; }
+.location-option-copy small { margin-top: 4px; display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: 9px; }
+.location-hours { display: flex; align-items: center; gap: 5px; color: var(--olive); font-size: 9px; font-weight: 800; white-space: nowrap; }
+.location-footnote { margin-top: 2px; padding: 13px 22px 17px; display: flex; align-items: center; justify-content: space-between; gap: 15px; border-top: 1px solid var(--line); color: var(--muted); }
+.location-footnote span { padding: 5px 8px; border-radius: 99px; background: #e9f1e5; color: var(--olive); text-transform: uppercase; letter-spacing: .06em; font-size: 8px; font-weight: 850; white-space: nowrap; }
+.location-footnote p { margin: 0; text-align: right; font-size: 8px; }
+
 @media (max-width: 1050px) {
   .pizza-grid { grid-template-columns: repeat(2, 1fr); row-gap: 42px; }
   .intro { grid-template-columns: 55% 45%; min-height: 590px; }
@@ -307,6 +329,9 @@ footer small { justify-self: end; color: #aaa69f; }
   .brand { font-size: 19px; }
   .brand-mark { width: 31px; height: 31px; }
   .location-pill { order: 3; position: absolute; top: 84px; left: 16px; z-index: 5; min-height: 45px; background: rgba(255,255,255,.94); }
+  .location-pill { max-width: calc(100vw - 32px); }
+  .location-copy { min-width: 0; }
+  .location-copy strong, .location-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .header-actions { gap: 6px; }
   .account-button { width: 42px; height: 42px; min-height: 42px; padding: 0; justify-content: center; border: 0; background: transparent; }
   .account-button > span:last-child { display: none; }
@@ -352,6 +377,11 @@ footer small { justify-self: end; color: #aaa69f; }
   .cart-footer { padding-left: 16px; padding-right: 16px; }
   .order-card { padding: 32px 22px 24px; border-radius: 22px; }
   .account-dialog { width: calc(100% - 16px) !important; border-radius: 22px !important; }
+  .location-dialog { width: calc(100% - 16px) !important; border-radius: 22px !important; }
+  .location-header { padding-left: 22px; padding-right: 22px; }
+  .location-list { padding-left: 12px; padding-right: 12px; }
+  .location-option { grid-template-columns: 34px 1fr; }
+  .location-hours { grid-column: 2; margin-top: -3px; }
   .account-header, .loyalty-profile > [data-slot="dialog-header"] { padding-left: 22px; padding-right: 22px; }
   .account-tabs, .stamp-card, .reward-summary { margin-left: 17px; margin-right: 17px; }
   .account-form { padding-left: 17px; padding-right: 17px; }
