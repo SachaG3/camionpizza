@@ -6,7 +6,6 @@ export type OrderAddon = {
   detail: string;
   price: number;
   kind: "drink" | "dessert";
-  symbol: string;
 };
 
 export type AddonSelection = {
@@ -15,11 +14,11 @@ export type AddonSelection = {
 };
 
 export const orderAddons: OrderAddon[] = [
-  { id: "water", name: "Eau fraîche", detail: "50 cl", price: 1.2, kind: "drink", symbol: "💧" },
-  { id: "citronnade", name: "Citronnade", detail: "Maison · 33 cl", price: 1.8, kind: "drink", symbol: "🍋" },
-  { id: "cola", name: "Cola", detail: "33 cl", price: 2, kind: "drink", symbol: "🥤" },
-  { id: "cookie", name: "Cookie choco", detail: "Cœur fondant", price: 1.9, kind: "dessert", symbol: "🍪" },
-  { id: "tiramisu", name: "Tiramisu", detail: "Pot maison", price: 3.2, kind: "dessert", symbol: "☕" },
+  { id: "water", name: "Eau fraîche", detail: "50 cl", price: 1.2, kind: "drink" },
+  { id: "citronnade", name: "Citronnade", detail: "Maison · 33 cl", price: 1.8, kind: "drink" },
+  { id: "cola", name: "Cola", detail: "33 cl", price: 2, kind: "drink" },
+  { id: "cookie", name: "Cookie choco", detail: "Cœur fondant", price: 1.9, kind: "dessert" },
+  { id: "tiramisu", name: "Tiramisu", detail: "Pot maison", price: 3.2, kind: "dessert" },
 ];
 
 export const emptyAddonSelection: AddonSelection = {

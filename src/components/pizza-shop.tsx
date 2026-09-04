@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 import { AccountDialog } from "@/components/account-dialog";
+import { FormulaDialog } from "@/components/formula-dialog";
 import { LocationDialog } from "@/components/location-dialog";
 
 import {
@@ -58,7 +59,6 @@ import {
 import {
   COMBO_DISCOUNT,
   emptyAddonSelection,
-  orderAddons,
   orderTotal,
   parseStoredAddons,
   selectedAddons,
@@ -97,6 +97,8 @@ export function PizzaShop() {
   const [addons, setAddons] = useState<AddonSelection>(emptyAddonSelection);
   const [addonsReady, setAddonsReady] = useState(false);
   const [confirmedAddons, setConfirmedAddons] = useState<string[]>([]);
+  const [formulaOpen, setFormulaOpen] = useState(false);
+  const formulaTriggerRef = useRef<HTMLButtonElement>(null);
 
   const itemCount = cartCount(cart);
   const pizzaValue = cartTotal(cart);
@@ -267,6 +269,21 @@ export function PizzaShop() {
       ...current,
       [key]: current[key] === item.id ? null : item.id,
     }));
+  }
+
+  function openFormula() {
+    setCartOpen(false);
+    window.setTimeout(() => setFormulaOpen(true), 0);
+  }
+
+  function changeFormulaOpen(open: boolean) {
+    setFormulaOpen(open);
+    if (!open) {
+      window.setTimeout(() => {
+        setCartOpen(true);
+        window.setTimeout(() => formulaTriggerRef.current?.focus(), 0);
+      }, 0);
+    }
   }
 
   async function placeOrder() {
@@ -538,39 +555,20 @@ export function PizzaShop() {
                   ))}
                 </div>
 
-                <section className="pause-formula" aria-labelledby="formula-title">
-                  <div className="formula-heading">
-                    <span><BadgeEuro size={18} /></span>
-                    <div>
-                      <h3 id="formula-title">Complète ta pause</h3>
-                      <p>Une boisson + un dessert = {euro(COMBO_DISCOUNT)} offert</p>
-                    </div>
-                    {hasCombo && <strong>Formule</strong>}
+                <section className={`formula-banner ${hasCombo ? "complete" : chosenAddons.length ? "started" : ""}`}>
+                  <div className="formula-banner-icon"><BadgeEuro size={20} /></div>
+                  <div className="formula-banner-copy">
+                    <span>La formule étudiante</span>
+                    <h3>{hasCombo ? "Ta pause est complète" : "Passe en formule"}</h3>
+                    <p>
+                      {chosenAddons.length
+                        ? chosenAddons.map((item) => item.name).join(" · ")
+                        : `Boisson + douceur · ${euro(COMBO_DISCOUNT)} offert`}
+                    </p>
                   </div>
-                  {(["drink", "dessert"] as const).map((kind) => (
-                    <div className="addon-group" key={kind}>
-                      <small>{kind === "drink" ? "Ta boisson" : "La touche sucrée"}</small>
-                      <div className="addon-list">
-                        {orderAddons.filter((item) => item.kind === kind).map((item) => {
-                          const selected = addons[kind === "drink" ? "drinkId" : "dessertId"] === item.id;
-                          return (
-                            <button
-                              key={item.id}
-                              type="button"
-                              className={selected ? "selected" : ""}
-                              aria-pressed={selected}
-                              onClick={() => chooseAddon(item)}
-                            >
-                              <span className="addon-symbol" aria-hidden="true">{item.symbol}</span>
-                              <span><strong>{item.name}</strong><small>{item.detail}</small></span>
-                              <b>+{euro(item.price)}</b>
-                              {selected && <i><Check size={12} /></i>}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+                  <button ref={formulaTriggerRef} type="button" onClick={openFormula}>
+                    {chosenAddons.length ? "Modifier" : "Choisir"}
+                  </button>
                 </section>
 
                 <section className="pickup-section">
@@ -642,6 +640,12 @@ export function PizzaShop() {
 
       <AccountDialog open={accountOpen} onOpenChange={setAccountOpen} user={user} onUserChange={setUser} />
       <LocationDialog open={locationOpen} onOpenChange={setLocationOpen} selectedId={locationId} onSelect={selectLocation} />
+      <FormulaDialog
+        open={formulaOpen}
+        onOpenChange={changeFormulaOpen}
+        selection={addons}
+        onSelect={chooseAddon}
+      />
 
       <Sheet open={composerOpen} onOpenChange={setComposerOpen}>
         <SheetContent className="composer-sheet" side="right">
