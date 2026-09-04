@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { Gift, LoaderCircle, LogOut, Pizza, UserRound } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import { ArrowUpRight, FileDown, Gift, LoaderCircle, LogOut, PackageCheck, Pizza, ReceiptText, UserRound } from "lucide-react";
 
 import {
   Dialog,
@@ -11,6 +11,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { PublicLoyaltyUser } from "@/lib/loyalty-store";
+import type { CustomerOrder, OrderStatus } from "@/lib/order-store";
+
+const statusLabels: Record<OrderStatus, string> = {
+  received: "Reçue",
+  preparing: "En préparation",
+  ready: "Prête",
+  picked_up: "Récupérée",
+  cancelled: "Annulée",
+};
+
+const euro = (value: number) => new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(value);
 
 export function AccountDialog({
   open,
@@ -26,6 +37,21 @@ export function AccountDialog({
   const [mode, setMode] = useState<"register" | "login">("register");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [section, setSection] = useState<"loyalty" | "orders">("loyalty");
+  const [orders, setOrders] = useState<CustomerOrder[]>([]);
+  const [ordersPending, setOrdersPending] = useState(false);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    let active = true;
+    const pendingTimer = window.setTimeout(() => setOrdersPending(true), 0);
+    fetch("/api/orders")
+      .then((response) => response.json())
+      .then((result) => { if (active) setOrders(result.orders ?? []); })
+      .catch(() => undefined)
+      .finally(() => { if (active) setOrdersPending(false); });
+    return () => { active = false; window.clearTimeout(pendingTimer); };
+  }, [open, user]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,7 +98,12 @@ export function AccountDialog({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="stamp-card">
+            <div className="profile-tabs" role="tablist" aria-label="Mon compte">
+              <button type="button" role="tab" aria-selected={section === "loyalty"} className={section === "loyalty" ? "active" : ""} onClick={() => setSection("loyalty")}>Fidélité</button>
+              <button type="button" role="tab" aria-selected={section === "orders"} className={section === "orders" ? "active" : ""} onClick={() => setSection("orders")}>Mes commandes <span>{orders.length}</span></button>
+            </div>
+
+            {section === "loyalty" ? <><div className="stamp-card">
               <div className="stamp-card-heading">
                 <span>Ta carte fidélité</span>
                 <strong>{user.stamps}/6</strong>
@@ -95,6 +126,26 @@ export function AccountDialog({
               <div><strong>{user.rewards}</strong><span>pizza{user.rewards > 1 ? "s" : ""} offerte{user.rewards > 1 ? "s" : ""}</span></div>
               <div><strong>{user.totalOrders}</strong><span>commande{user.totalOrders > 1 ? "s" : ""}</span></div>
             </div>
+
+            {user.role === "admin" && <a className="admin-access" href="/admin"><PackageCheck size={16} /> Gérer les commandes <ArrowUpRight size={15} /></a>}
+            </> : (
+              <div className="order-history">
+                {ordersPending ? <div className="history-empty"><LoaderCircle className="spin" size={22} /> Chargement…</div> : orders.length ? orders.map((order) => (
+                  <article className="history-order" key={order.id}>
+                    <div className="history-order-head">
+                      <div><span>{new Date(order.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}</span><strong>{order.number}</strong></div>
+                      <span className={`order-status ${order.status}`}>{statusLabels[order.status]}</span>
+                    </div>
+                    <p>{order.items.map((item) => `${item.quantity} × ${item.name}`).join(" · ")}</p>
+                    <div className="history-order-foot">
+                      <span>{order.locationName} · {order.pickupTime}</span>
+                      <strong>{euro(order.total)}</strong>
+                    </div>
+                    {order.status === "picked_up" && <a href={`/api/orders/${order.id}/invoice`}><FileDown size={14} /> Télécharger la facture</a>}
+                  </article>
+                )) : <div className="history-empty"><ReceiptText size={24} /><strong>Pas encore de commande</strong><span>Ta prochaine pause apparaîtra ici.</span></div>}
+              </div>
+            )}
 
             <button className="logout-button" type="button" onClick={logout} disabled={pending}>
               <LogOut size={16} /> Se déconnecter

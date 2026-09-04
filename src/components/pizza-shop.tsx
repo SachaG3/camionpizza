@@ -12,6 +12,7 @@ import {
   Clock3,
   Flame,
   MapPin,
+  Mail,
   Minus,
   Plus,
   Pizza as PizzaIcon,
@@ -98,6 +99,10 @@ export function PizzaShop() {
   const [addonsReady, setAddonsReady] = useState(false);
   const [confirmedAddons, setConfirmedAddons] = useState<string[]>([]);
   const [formulaOpen, setFormulaOpen] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [orderPending, setOrderPending] = useState(false);
+  const [orderError, setOrderError] = useState("");
+  const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
   const formulaTriggerRef = useRef<HTMLButtonElement>(null);
 
   const itemCount = cartCount(cart);
@@ -287,25 +292,44 @@ export function PizzaShop() {
   }
 
   async function placeOrder() {
+    if (!user && !guestEmail.trim()) {
+      setOrderError("Indique ton e-mail pour recevoir la confirmation.");
+      return;
+    }
+    setOrderPending(true);
+    setOrderError("");
     setLoyaltyEarned(0);
-    if (user) {
-      const response = await fetch("/api/loyalty/order", {
+    try {
+      const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ pizzaCount: itemCount }),
+        body: JSON.stringify({
+          customerEmail: user?.email ?? guestEmail.trim(),
+          locationName: selectedLocation.name,
+          pickupLabel: selectedLocation.pickupLabel,
+          pickupTime,
+          items: cart.map(({ name, quantity, unitPrice, details }) => ({ name, quantity, unitPrice, details })),
+          addons: chosenAddons.map((item) => ({ name: item.name, unitPrice: item.price })),
+          discount: hasCombo ? COMBO_DISCOUNT : 0,
+        }),
       });
-      if (response.ok) {
-        const result = await response.json();
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Impossible de confirmer la commande.");
+      if (result.user) {
         setUser(result.user);
         setLoyaltyEarned(itemCount);
       }
+      setConfirmedAddons(chosenAddons.map((item) => item.name));
+      setOrderNumber(result.order.number);
+      setConfirmationEmailSent(result.order.emails.confirmation.status === "sent");
+      setCart([]);
+      setAddons(emptyAddonSelection);
+      setCartOpen(false);
+    } catch (error) {
+      setOrderError(error instanceof Error ? error.message : "Impossible de confirmer la commande.");
+    } finally {
+      setOrderPending(false);
     }
-    const randomOrder = window.crypto.getRandomValues(new Uint32Array(1))[0] % 900;
-    setConfirmedAddons(chosenAddons.map((item) => item.name));
-    setOrderNumber(String(100 + randomOrder));
-    setCart([]);
-    setAddons(emptyAddonSelection);
-    setCartOpen(false);
   }
 
   return (
@@ -593,6 +617,12 @@ export function PizzaShop() {
                   </div>
                   <button type="button" onClick={() => setAccountOpen(true)}>{user ? "Voir" : "Se connecter"}</button>
                 </section>
+                {!user && (
+                  <label className="guest-email">
+                    <span><Mail size={14} /> E-mail de confirmation</span>
+                    <input type="email" value={guestEmail} onChange={(event) => { setGuestEmail(event.target.value); setOrderError(""); }} placeholder="toi@exemple.fr" autoComplete="email" required />
+                  </label>
+                )}
               </>
             )}
           </div>
@@ -608,8 +638,9 @@ export function PizzaShop() {
               )}
               <div className="cart-total-row"><span>Total</span><strong>{euro(cartValue)}</strong></div>
               <p>Paiement au camion · retrait à {pickupTime}</p>
-              <button className="checkout-button" onClick={placeOrder}>
-                Confirmer la commande <ArrowRight size={18} />
+              {orderError && <p className="checkout-error" role="alert">{orderError}</p>}
+              <button className="checkout-button" onClick={placeOrder} disabled={orderPending}>
+                {orderPending ? "Envoi en cours…" : "Confirmer la commande"} <ArrowRight size={18} />
               </button>
             </div>
           )}
@@ -624,6 +655,7 @@ export function PizzaShop() {
               <p className="section-kicker">C’est dans le four</p>
               <h2 id="order-title">Commande n°{orderNumber}</h2>
               <p>On t’attend {selectedLocation.dayLabel.toLowerCase()} à <strong>{pickupTime}</strong>, {selectedLocation.pickupLabel.toLowerCase()}.</p>
+              <p className={`mail-confirmation ${confirmationEmailSent ? "sent" : "failed"}`}><Mail size={14} /> {confirmationEmailSent ? "Le récapitulatif vient d’être envoyé par e-mail." : "Commande enregistrée. L’e-mail pourra être renvoyé depuis l’administration."}</p>
               {confirmedAddons.length > 0 && (
                 <div className="confirmed-formula">
                   <span>En plus de tes pizzas</span>

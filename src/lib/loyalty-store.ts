@@ -17,6 +17,7 @@ export type PublicLoyaltyUser = {
   stamps: number;
   rewards: number;
   totalOrders: number;
+  role: "customer" | "admin";
 };
 
 type StoredUser = PublicLoyaltyUser & {
@@ -54,7 +55,7 @@ function publicUser(user: StoredUser): PublicLoyaltyUser {
   const { passwordHash: _passwordHash, passwordSalt: _passwordSalt, ...safeUser } = user;
   void _passwordHash;
   void _passwordSalt;
-  return safeUser;
+  return { ...safeUser, role: user.role ?? "customer" };
 }
 
 function createSession(userId: string) {
@@ -107,6 +108,7 @@ export class LoyaltyStore {
       stamps: 0,
       rewards: 0,
       totalOrders: 0,
+      role: "customer",
     };
     const { session, token } = createSession(user.id);
     data.users.push(user);
@@ -154,6 +156,17 @@ export class LoyaltyStore {
     const tokenHash = hashToken(token);
     data.sessions = data.sessions.filter((session) => session.tokenHash !== tokenHash);
     await this.write(data);
+  }
+
+  async setRoleByEmail(email: string, role: "customer" | "admin") {
+    const data = await this.read();
+    const user = data.users.find(
+      (candidate) => candidate.email === email.trim().toLowerCase(),
+    );
+    if (!user) return false;
+    user.role = role;
+    await this.write(data);
+    return true;
   }
 
   async login(input: { email: string; password: string }) {

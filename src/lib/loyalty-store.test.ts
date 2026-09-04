@@ -110,6 +110,24 @@ describe("LoyaltyStore", () => {
     });
   });
 
+  it("keeps new accounts as customers and can promote a known account", async () => {
+    const { store } = await createStore();
+    const account = await store.createAccount({
+      name: "Lina",
+      email: "lina@example.com",
+      password: "pause-pizza-2026",
+    });
+
+    expect(account.user.role).toBe("customer");
+    await expect(store.setRoleByEmail("lina@example.com", "admin")).resolves.toBe(true);
+    await expect(store.getUserByToken(account.token)).resolves.toMatchObject({ role: "admin" });
+  });
+
+  it("does not promote an unknown account", async () => {
+    const { store } = await createStore();
+    await expect(store.setRoleByEmail("absent@example.com", "admin")).resolves.toBe(false);
+  });
+
   it("invalidates the current session on logout", async () => {
     const { store } = await createStore();
     const account = await store.createAccount({
