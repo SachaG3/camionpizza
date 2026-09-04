@@ -1,6 +1,6 @@
 # Fourchette — Pizza campus
 
-Prototype mobile-first d’un camion à pizzas destiné aux lycéens et étudiants. Le parcours principal permet de parcourir la carte, personnaliser une pizza (taille, base, protéine et garnitures), calculer son prix et l’ajouter au panier.
+Prototype mobile-first d’un camion à pizzas destiné aux lycéens et étudiants. Le parcours principal permet de parcourir la carte, personnaliser une pizza (taille, base, protéine et garnitures), calculer son prix, gérer un panier persistant et confirmer un créneau de retrait.
 
 ## Lancer le projet
 
@@ -15,6 +15,7 @@ Puis ouvrir <http://localhost:3000>.
 
 ```bash
 npm run lint
+npm test
 npm run build
 ```
 
@@ -39,4 +40,4 @@ Ils sont enregistrés dans Hermes sous les noms `pizza-shadcn`, `pizza-nextjs`, 
 
 ## Portée actuelle
 
-Cette première tranche est un prototype frontend : catalogue, configurateur, calcul dynamique et panier local en mémoire. Aucun paiement, compte ou backend n’est encore branché.
+Cette première tranche est un prototype frontend : catalogue, configurateur, calcul dynamique, panier persistant dans le navigateur et confirmation de commande simulée. Aucun paiement, compte ou backend n’est encore branché.

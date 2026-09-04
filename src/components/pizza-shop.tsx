@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
+  CalendarClock,
   Check,
   ChevronDown,
   Clock3,
@@ -31,6 +32,14 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  addCartLine,
+  cartCount,
+  cartTotal,
+  changeCartLineQuantity,
+  parseStoredCart,
+  type CartLine,
+} from "@/lib/cart";
 
 const euro = (value: number) =>
   new Intl.NumberFormat("fr-FR", {
@@ -46,9 +55,30 @@ export function PizzaShop() {
   const [protein, setProtein] = useState(proteins[0].id);
   const [extras, setExtras] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
-  const [cartCount, setCartCount] = useState(0);
-  const [cartTotal, setCartTotal] = useState(0);
+  const [cart, setCart] = useState<CartLine[]>([]);
+  const [cartReady, setCartReady] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [pickupTime, setPickupTime] = useState("12:15");
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [toast, setToast] = useState(false);
+
+  const itemCount = cartCount(cart);
+  const cartValue = cartTotal(cart);
+
+  useEffect(() => {
+    const restoreCart = window.setTimeout(() => {
+      setCart(parseStoredCart(window.localStorage.getItem("fourchette-cart")));
+      setCartReady(true);
+    }, 0);
+
+    return () => window.clearTimeout(restoreCart);
+  }, []);
+
+  useEffect(() => {
+    if (cartReady) {
+      window.localStorage.setItem("fourchette-cart", JSON.stringify(cart));
+    }
+  }, [cart, cartReady]);
 
   const unitPrice = useMemo(() => {
     const sizePrice = sizes.find((item) => item.id === size)?.price ?? 0;
@@ -83,11 +113,39 @@ export function PizzaShop() {
   }
 
   function addToCart() {
-    setCartCount((count) => count + quantity);
-    setCartTotal((total) => total + unitPrice * quantity);
+    const sizeChoice = sizes.find((item) => item.id === size)!;
+    const baseChoice = bases.find((item) => item.id === base)!;
+    const proteinChoice = proteins.find((item) => item.id === protein)!;
+    const extraChoices = extras
+      .map((id) => toppings.find((item) => item.id === id)?.label)
+      .filter((label): label is string => Boolean(label));
+    const configurationId = [selectedPizza.id, size, base, protein, ...extras.toSorted()].join("-");
+
+    setCart((current) =>
+      addCartLine(current, {
+        id: configurationId,
+        pizzaId: selectedPizza.id,
+        name: selectedPizza.name,
+        image: selectedPizza.image,
+        unitPrice,
+        quantity,
+        details: [
+          `${sizeChoice.label} · ${sizeChoice.detail}`,
+          baseChoice.label,
+          ...(proteinChoice.id === "none" ? [] : [proteinChoice.label]),
+          ...extraChoices,
+        ],
+      }),
+    );
     setComposerOpen(false);
     setToast(true);
     window.setTimeout(() => setToast(false), 2800);
+  }
+
+  function placeOrder() {
+    setOrderNumber(String(Math.floor(100 + Math.random() * 900)));
+    setCart([]);
+    setCartOpen(false);
   }
 
   return (
@@ -122,10 +180,10 @@ export function PizzaShop() {
           <ChevronDown size={15} />
         </button>
 
-        <button className="cart-button" type="button" aria-label="Ouvrir le panier">
+        <button className="cart-button" type="button" aria-label="Ouvrir le panier" onClick={() => setCartOpen(true)}>
           <ShoppingBag size={19} />
           <span className="cart-label">Panier</span>
-          {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+          {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
         </button>
       </header>
 
@@ -233,12 +291,95 @@ export function PizzaShop() {
         <small>Projet scolaire · Démonstration</small>
       </footer>
 
-      {cartCount > 0 && (
-        <button className="mobile-cart" type="button">
-          <span><ShoppingBag size={18} /> {cartCount} article{cartCount > 1 ? "s" : ""}</span>
-          <strong>Voir le panier · {euro(cartTotal)}</strong>
+      {itemCount > 0 && (
+        <button className="mobile-cart" type="button" onClick={() => setCartOpen(true)}>
+          <span><ShoppingBag size={18} /> {itemCount} article{itemCount > 1 ? "s" : ""}</span>
+          <strong>Voir le panier · {euro(cartValue)}</strong>
         </button>
       )}
+
+      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+        <SheetContent className="cart-sheet" side="right">
+          <SheetHeader className="cart-header">
+            <span className="composer-kicker">Ta commande</span>
+            <SheetTitle>Le panier de la pause</SheetTitle>
+            <SheetDescription>
+              Récupération au camion, sans passer par la file.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="cart-body">
+            {cart.length === 0 ? (
+              <div className="empty-cart">
+                <span><ShoppingBag size={26} /></span>
+                <h3>Ton panier est vide</h3>
+                <p>Choisis une recette de la carte pour commencer.</p>
+                <button onClick={() => setCartOpen(false)}>Retour à la carte</button>
+              </div>
+            ) : (
+              <>
+                <div className="cart-lines">
+                  {cart.map((line) => (
+                    <motion.article layout key={line.id} className="cart-line">
+                      <div className="cart-line-image">
+                        <Image src={line.image} alt="" fill sizes="80px" />
+                      </div>
+                      <div className="cart-line-copy">
+                        <div><h3>{line.name}</h3><strong>{euro(line.unitPrice * line.quantity)}</strong></div>
+                        <p>{line.details.join(" · ")}</p>
+                        <div className="line-stepper">
+                          <button aria-label={`Retirer une ${line.name}`} onClick={() => setCart((current) => changeCartLineQuantity(current, line.id, -1))}><Minus size={13} /></button>
+                          <span>{line.quantity}</span>
+                          <button aria-label={`Ajouter une ${line.name}`} onClick={() => setCart((current) => changeCartLineQuantity(current, line.id, 1))}><Plus size={13} /></button>
+                        </div>
+                      </div>
+                    </motion.article>
+                  ))}
+                </div>
+
+                <section className="pickup-section">
+                  <div className="pickup-heading">
+                    <span><CalendarClock size={18} /></span>
+                    <div><h3>Heure de retrait</h3><p>Lycée Jean-Moulin · portail principal</p></div>
+                  </div>
+                  <div className="time-grid">
+                    {["12:15", "12:30", "12:45", "13:00"].map((time) => (
+                      <button key={time} className={pickupTime === time ? "selected" : ""} onClick={() => setPickupTime(time)}>
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              </>
+            )}
+          </div>
+
+          {cart.length > 0 && (
+            <div className="cart-footer">
+              <div className="cart-total-row"><span>Total</span><strong>{euro(cartValue)}</strong></div>
+              <p>Paiement au camion · retrait à {pickupTime}</p>
+              <button className="checkout-button" onClick={placeOrder}>
+                Confirmer la commande <ArrowRight size={18} />
+              </button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      <AnimatePresence>
+        {orderNumber && (
+          <motion.div className="order-overlay" onClick={() => setOrderNumber(null)}>
+            <motion.div className="order-card" role="dialog" aria-modal="true" aria-labelledby="order-title" initial={{ y: 24, scale: .96 }} animate={{ y: 0, scale: 1 }} exit={{ y: 16, scale: .97 }} onClick={(event) => event.stopPropagation()}>
+              <span className="order-check"><Check size={30} /></span>
+              <p className="section-kicker">C’est dans le four</p>
+              <h2 id="order-title">Commande n°{orderNumber}</h2>
+              <p>On t’attend à <strong>{pickupTime}</strong> devant le portail principal.</p>
+              <div className="order-ticket"><span>À présenter au camion</span><strong>#{orderNumber}</strong></div>
+              <button onClick={() => setOrderNumber(null)}>Retourner à la carte</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Sheet open={composerOpen} onOpenChange={setComposerOpen}>
         <SheetContent className="composer-sheet" side="right">
