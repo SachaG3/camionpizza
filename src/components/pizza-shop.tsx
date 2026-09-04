@@ -15,7 +15,10 @@ import {
   Plus,
   ShoppingBag,
   Sparkles,
+  UserRound,
 } from "lucide-react";
+
+import { AccountDialog } from "@/components/account-dialog";
 
 import {
   bases,
@@ -40,6 +43,7 @@ import {
   parseStoredCart,
   type CartLine,
 } from "@/lib/cart";
+import type { PublicLoyaltyUser } from "@/lib/loyalty-store";
 
 const euro = (value: number) =>
   new Intl.NumberFormat("fr-FR", {
@@ -61,6 +65,9 @@ export function PizzaShop() {
   const [pickupTime, setPickupTime] = useState("12:15");
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [toast, setToast] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [user, setUser] = useState<PublicLoyaltyUser | null>(null);
+  const [loyaltyEarned, setLoyaltyEarned] = useState(0);
 
   const itemCount = cartCount(cart);
   const cartValue = cartTotal(cart);
@@ -79,6 +86,17 @@ export function PizzaShop() {
       window.localStorage.setItem("fourchette-cart", JSON.stringify(cart));
     }
   }, [cart, cartReady]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/me")
+      .then((response) => response.json())
+      .then((result) => {
+        if (active) setUser(result.user ?? null);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
 
   const unitPrice = useMemo(() => {
     const sizePrice = sizes.find((item) => item.id === size)?.price ?? 0;
@@ -142,7 +160,20 @@ export function PizzaShop() {
     window.setTimeout(() => setToast(false), 2800);
   }
 
-  function placeOrder() {
+  async function placeOrder() {
+    setLoyaltyEarned(0);
+    if (user) {
+      const response = await fetch("/api/loyalty/order", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ pizzaCount: itemCount }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setUser(result.user);
+        setLoyaltyEarned(itemCount);
+      }
+    }
     setOrderNumber(String(Math.floor(100 + Math.random() * 900)));
     setCart([]);
     setCartOpen(false);
@@ -180,11 +211,17 @@ export function PizzaShop() {
           <ChevronDown size={15} />
         </button>
 
-        <button className="cart-button" type="button" aria-label="Ouvrir le panier" onClick={() => setCartOpen(true)}>
-          <ShoppingBag size={19} />
-          <span className="cart-label">Panier</span>
-          {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
-        </button>
+        <div className="header-actions">
+          <button className={`account-button ${user ? "connected" : ""}`} type="button" onClick={() => setAccountOpen(true)}>
+            <span className="account-avatar">{user ? user.name.slice(0, 1).toUpperCase() : <UserRound size={17} />}</span>
+            <span>{user ? user.name : "Mon compte"}</span>
+          </button>
+          <button className="cart-button" type="button" aria-label="Ouvrir le panier" onClick={() => setCartOpen(true)}>
+            <ShoppingBag size={19} />
+            <span className="cart-label">Panier</span>
+            {itemCount > 0 && <span className="cart-count">{itemCount}</span>}
+          </button>
+        </div>
       </header>
 
       <section className="intro" id="top">
@@ -350,6 +387,15 @@ export function PizzaShop() {
                     ))}
                   </div>
                 </section>
+
+                <section className={`cart-loyalty ${user ? "connected" : ""}`}>
+                  <span className="account-avatar">{user ? user.name.slice(0, 1).toUpperCase() : <UserRound size={15} />}</span>
+                  <div>
+                    <strong>{user ? `${user.stamps}/6 sur ta carte` : "Commande sans compte"}</strong>
+                    <p>{user ? "Les pizzas de cette commande seront ajoutées." : "C’est possible. Connecte-toi seulement si tu veux cumuler des tampons."}</p>
+                  </div>
+                  <button type="button" onClick={() => setAccountOpen(true)}>{user ? "Voir" : "Se connecter"}</button>
+                </section>
               </>
             )}
           </div>
@@ -374,12 +420,15 @@ export function PizzaShop() {
               <p className="section-kicker">C’est dans le four</p>
               <h2 id="order-title">Commande n°{orderNumber}</h2>
               <p>On t’attend à <strong>{pickupTime}</strong> devant le portail principal.</p>
+              {loyaltyEarned > 0 && <p className="loyalty-earned">+{loyaltyEarned} tampon{loyaltyEarned > 1 ? "s" : ""} ajouté{loyaltyEarned > 1 ? "s" : ""} à ta carte</p>}
               <div className="order-ticket"><span>À présenter au camion</span><strong>#{orderNumber}</strong></div>
               <button onClick={() => setOrderNumber(null)}>Retourner à la carte</button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AccountDialog open={accountOpen} onOpenChange={setAccountOpen} user={user} onUserChange={setUser} />
 
       <Sheet open={composerOpen} onOpenChange={setComposerOpen}>
         <SheetContent className="composer-sheet" side="right">

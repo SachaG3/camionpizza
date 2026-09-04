@@ -24,7 +24,7 @@ npm run build
 - Next.js, React et TypeScript
 - Tailwind CSS et shadcn/ui
 - Motion et Lucide
-- React Hook Form et Zod, prêts pour les futurs formulaires
+- React Hook Form et Zod pour les formulaires et la validation des API
 - Embla Carousel, prêt pour une évolution de la carte
 
 ## MCP du projet
@@ -40,4 +40,6 @@ Ils sont enregistrés dans Hermes sous les noms `pizza-shadcn`, `pizza-nextjs`, 
 
 ## Portée actuelle
 
-Cette première tranche est un prototype frontend : catalogue, configurateur, calcul dynamique, panier persistant dans le navigateur et confirmation de commande simulée. Aucun paiement, compte ou backend n’est encore branché.
+Le prototype couvre le catalogue, le configurateur, le panier persistant, le retrait et une confirmation de commande simulée. La commande reste possible sans compte. Un compte facultatif permet de conserver une carte fidélité côté serveur : mots de passe hachés avec `scrypt`, sessions aléatoires stockées sous forme de hash et cookie `HttpOnly`, `Secure`, `SameSite=Lax`. Les comptes de démonstration sont conservés dans `.data/`, ignoré par Git.
+
+Aucun paiement réel n’est connecté.

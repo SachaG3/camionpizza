@@ -20,6 +20,9 @@
 # production
 /build
 
+# local demo accounts and sessions
+/.data
+
 # misc
 .DS_Store
 *.pem
