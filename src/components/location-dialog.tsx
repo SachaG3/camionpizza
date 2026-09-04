@@ -42,7 +42,9 @@ export function LocationDialog({
                 type="button"
                 role="radio"
                 aria-checked={selected}
-                className={`location-option ${selected ? "selected" : ""}`}
+                aria-disabled={!location.acceptingOrders}
+                disabled={!location.acceptingOrders}
+                className={`location-option ${selected ? "selected" : ""} ${!location.acceptingOrders ? "closed" : ""}`}
                 key={location.id}
                 onClick={() => onSelect(location.id)}
               >
@@ -50,7 +52,7 @@ export function LocationDialog({
                   <i>{selected ? <Check size={14} /> : index + 1}</i>
                 </span>
                 <span className="location-option-copy">
-                  <span className="location-day">{location.dayLabel}</span>
+                  <span className="location-day">{location.acceptingOrders ? location.dayLabel : "Commandes closes"}</span>
                   <strong>{location.name}</strong>
                   <small><MapPin size={12} /> {location.pickupLabel}</small>
                 </span>

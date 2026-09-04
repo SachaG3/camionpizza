@@ -27,6 +27,8 @@ export type CustomerOrder = {
   locationName: string;
   pickupLabel: string;
   pickupTime: string;
+  instructions?: string;
+  estimatedMinutes?: number;
   items: OrderItem[];
   addons: OrderAddonLine[];
   discount: number;

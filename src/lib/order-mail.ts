@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import PDFDocument from "pdfkit";
 
 import type { CustomerOrder, EmailKind } from "./order-store";
+export type TransactionalEmailKind = EmailKind | "ready";
 
 const euro = (value: number) => new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(value);
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, (character) => ({
@@ -44,6 +45,14 @@ export function renderInvoiceEmail(order: CustomerOrder) {
   return { subject, text, html };
 }
 
+export function renderReadyEmail(order: CustomerOrder) {
+  return {
+    subject: `Ta commande ${order.number} est prête · Fourchette`,
+    text: `Salut ${order.customerName},\n\nTa commande ${order.number} est prête. Tu peux venir la récupérer à ${order.locationName}, ${order.pickupLabel}.\n\nFourchette`,
+    html: emailFrame("C’est prêt !", `La commande ${order.number} t’attend.`, `<p style="margin:0 0 18px;color:#726e66;line-height:1.6">Ta commande <strong style="color:#25231f">${escapeHtml(order.number)}</strong> est chaude et prête à être récupérée.</p><div style="padding:18px;background:#f6f1e7;border-radius:12px"><strong>${escapeHtml(order.locationName)}</strong><br><span style="color:#726e66">${escapeHtml(order.pickupLabel)}</span></div>`),
+  };
+}
+
 export async function createInvoicePdf(order: CustomerOrder): Promise<Buffer> {
   if (order.status !== "picked_up") throw new Error("La facture est disponible après récupération de la commande.");
   return new Promise((resolve, reject) => {
@@ -84,8 +93,8 @@ export async function verifyMailTransport() {
   await transport().verify();
 }
 
-export async function sendOrderEmail(order: CustomerOrder, kind: EmailKind) {
-  const content = kind === "confirmation" ? renderConfirmationEmail(order) : renderInvoiceEmail(order);
+export async function sendOrderEmail(order: CustomerOrder, kind: TransactionalEmailKind) {
+  const content = kind === "confirmation" ? renderConfirmationEmail(order) : kind === "ready" ? renderReadyEmail(order) : renderInvoiceEmail(order);
   const invoice = kind === "invoice" ? await createInvoicePdf(order) : null;
   const result = await transport().sendMail({
     from: process.env.MAIL_FROM,

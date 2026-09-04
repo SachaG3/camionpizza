@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -23,9 +24,10 @@ import {
   X,
 } from "lucide-react";
 
-import { AccountDialog } from "@/components/account-dialog";
-import { FormulaDialog } from "@/components/formula-dialog";
-import { LocationDialog } from "@/components/location-dialog";
+const dialogLoading = () => <div className="dialog-skeleton" role="status" aria-label="Chargement"><i /><i /><i /></div>;
+const AccountDialog = dynamic(() => import("@/components/account-dialog").then((module) => module.AccountDialog), { ssr: false, loading: dialogLoading });
+const FormulaDialog = dynamic(() => import("@/components/formula-dialog").then((module) => module.FormulaDialog), { ssr: false, loading: dialogLoading });
+const LocationDialog = dynamic(() => import("@/components/location-dialog").then((module) => module.LocationDialog), { ssr: false, loading: dialogLoading });
 
 import {
   bases,
@@ -52,6 +54,7 @@ import {
   type CartLine,
 } from "@/lib/cart";
 import type { PublicLoyaltyUser } from "@/lib/loyalty-store";
+import type { CustomerOrder } from "@/lib/order-store";
 import {
   createDefaultCartLine,
   filterPizzas,
@@ -61,6 +64,7 @@ import {
   COMBO_DISCOUNT,
   emptyAddonSelection,
   orderTotal,
+  orderAddons,
   parseStoredAddons,
   selectedAddons,
   type AddonSelection,
@@ -86,6 +90,7 @@ export function PizzaShop() {
   const [cartOpen, setCartOpen] = useState(false);
   const [pickupTime, setPickupTime] = useState(locations[0].slots[0]);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [orderQr, setOrderQr] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<MenuFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -102,7 +107,10 @@ export function PizzaShop() {
   const [guestEmail, setGuestEmail] = useState("");
   const [orderPending, setOrderPending] = useState(false);
   const [orderError, setOrderError] = useState("");
-  const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
+
+  const [instructions, setInstructions] = useState("");
+  const [estimateMinutes, setEstimateMinutes] = useState(12);
+  const [slotAvailability, setSlotAvailability] = useState<Record<string, Record<string, { remaining: number; full: boolean }>>>({});
   const formulaTriggerRef = useRef<HTMLButtonElement>(null);
 
   const itemCount = cartCount(cart);
@@ -133,6 +141,16 @@ export function PizzaShop() {
       window.localStorage.setItem("fourchette-cart", JSON.stringify(cart));
     }
   }, [cart, cartReady]);
+
+  useEffect(() => {
+    if (!orderNumber) return;
+    let active = true;
+    import("qrcode")
+      .then(({ toDataURL }) => toDataURL(orderNumber, { margin: 1, width: 144 }))
+      .then((url) => { if (active) setOrderQr(url); })
+      .catch(() => { if (active) setOrderQr(null); });
+    return () => { active = false; };
+  }, [orderNumber]);
 
   useEffect(() => {
     const restoreAddons = window.setTimeout(() => {
@@ -193,6 +211,20 @@ export function PizzaShop() {
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    const load = () => fetch("/api/availability")
+      .then((response) => response.json())
+      .then((result) => {
+        if (!active) return;
+        setEstimateMinutes(result.estimateMinutes ?? 12);
+        setSlotAvailability(Object.fromEntries((result.locations ?? []).map((location: { id: string; slots: Record<string, { remaining: number; full: boolean }> }) => [location.id, location.slots])));
+      })
+      .catch(() => undefined);
+    const timer = window.setTimeout(load, 0);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, []);
+
   const unitPrice = useMemo(() => {
     const sizePrice = sizes.find((item) => item.id === size)?.price ?? 0;
     const basePrice = bases.find((item) => item.id === base)?.price ?? 0;
@@ -206,6 +238,7 @@ export function PizzaShop() {
   }, [base, extras, protein, selectedPizza.price, size]);
 
   function openComposer(pizza: Pizza) {
+    if (pizza.availability === "sold_out") return;
     setSelectedPizza(pizza);
     setSize("solo");
     setBase("tomate");
@@ -251,12 +284,15 @@ export function PizzaShop() {
       }),
     );
     setComposerOpen(false);
+    navigator.vibrate?.(18);
     setToast(`${selectedPizza.name} ajoutée au panier`);
     window.setTimeout(() => setToast(null), 2800);
   }
 
   function quickAdd(pizza: Pizza) {
+    if (pizza.availability === "sold_out") return;
     setCart((current) => addCartLine(current, createDefaultCartLine(pizza)));
+    navigator.vibrate?.(18);
     setToast(`${pizza.name} ajoutée en Solo`);
     window.setTimeout(() => setToast(null), 2800);
   }
@@ -291,6 +327,20 @@ export function PizzaShop() {
     }
   }
 
+  function reorder(order: CustomerOrder) {
+    const lines = order.items.flatMap((item, index) => {
+      const pizza = pizzas.find((candidate) => candidate.name === item.name);
+      if (!pizza || pizza.availability === "sold_out") return [];
+      return [{ id: `repeat-${order.id}-${index}`, pizzaId: pizza.id, name: item.name, image: pizza.image, unitPrice: item.unitPrice, quantity: item.quantity, details: item.details }];
+    });
+    const drink = order.addons.find((line) => orderAddons.some((item) => item.kind === "drink" && item.name === line.name));
+    const dessert = order.addons.find((line) => orderAddons.some((item) => item.kind === "dessert" && item.name === line.name));
+    setCart(lines);
+    setAddons({ drinkId: orderAddons.find((item) => item.name === drink?.name)?.id ?? null, dessertId: orderAddons.find((item) => item.name === dessert?.name)?.id ?? null });
+    setAccountOpen(false);
+    window.setTimeout(() => setCartOpen(true), 0);
+  }
+
   async function placeOrder() {
     if (!user && !guestEmail.trim()) {
       setOrderError("Indique ton e-mail pour recevoir la confirmation.");
@@ -311,6 +361,7 @@ export function PizzaShop() {
           items: cart.map(({ name, quantity, unitPrice, details }) => ({ name, quantity, unitPrice, details })),
           addons: chosenAddons.map((item) => ({ name: item.name, unitPrice: item.price })),
           discount: hasCombo ? COMBO_DISCOUNT : 0,
+          instructions,
         }),
       });
       const result = await response.json();
@@ -321,9 +372,10 @@ export function PizzaShop() {
       }
       setConfirmedAddons(chosenAddons.map((item) => item.name));
       setOrderNumber(result.order.number);
-      setConfirmationEmailSent(result.order.emails.confirmation.status === "sent");
+
       setCart([]);
       setAddons(emptyAddonSelection);
+      setInstructions("");
       setCartOpen(false);
     } catch (error) {
       setOrderError(error instanceof Error ? error.message : "Impossible de confirmer la commande.");
@@ -365,7 +417,7 @@ export function PizzaShop() {
         </button>
 
         <div className="header-actions">
-          <button className={`account-button ${user ? "connected" : ""}`} type="button" onClick={() => setAccountOpen(true)}>
+          <button className={`account-button ${user ? "connected" : ""}`} type="button" aria-label={user ? "Ouvrir mon compte" : "Se connecter ou créer un compte"} onClick={() => setAccountOpen(true)}>
             <span className="account-avatar">{user ? user.name.slice(0, 1).toUpperCase() : <UserRound size={17} />}</span>
             <span>{user ? user.name : "Mon compte"}</span>
           </button>
@@ -389,7 +441,7 @@ export function PizzaShop() {
             <a className="primary-action" href="#menu">
               Voir la carte <ArrowRight size={18} />
             </a>
-            <span className="prep-time"><Clock3 size={17} /> Prête en 12 min</span>
+            <span className="prep-time"><Clock3 size={17} /> Prête dans ~{estimateMinutes} min</span>
           </div>
         </div>
 
@@ -487,9 +539,11 @@ export function PizzaShop() {
                 {pizza.popular && (
                   <span className="popular-tag"><Flame size={14} /> Populaire</span>
                 )}
-                <button className="pizza-open" type="button" aria-label={`Personnaliser ${pizza.name}`} onClick={() => openComposer(pizza)} />
+                {pizza.availability === "sold_out" && <span className="availability-tag sold-out">Épuisée</span>}
+                {pizza.availability === "limited" && <span className="availability-tag limited">Plus que 3</span>}
+                <button className="pizza-open" type="button" disabled={pizza.availability === "sold_out"} aria-label={`Personnaliser ${pizza.name}`} onClick={() => openComposer(pizza)} />
                 <span className="customize-hint">Personnaliser</span>
-                <button className="quick-add" type="button" aria-label={`Ajouter ${pizza.name} en taille Solo`} onClick={() => quickAdd(pizza)}>
+                <button className="quick-add" type="button" disabled={pizza.availability === "sold_out"} aria-label={`Ajouter ${pizza.name} en taille Solo`} onClick={() => quickAdd(pizza)}>
                   <Plus size={20} />
                 </button>
               </div>
@@ -502,6 +556,7 @@ export function PizzaShop() {
                 <div className="tag-row">
                   {pizza.tags.map((tag) => <span key={tag}>{tag}</span>)}
                 </div>
+                <p className="allergen-note">Allergènes : {pizza.allergens.join(", ")}</p>
               </div>
             </motion.article>
           ))}
@@ -601,11 +656,15 @@ export function PizzaShop() {
                     <div><h3>Heure de retrait</h3><p>{selectedLocation.name} · {selectedLocation.pickupLabel}</p></div>
                   </div>
                   <div className="time-grid">
-                    {selectedLocation.slots.map((time) => (
-                      <button key={time} className={pickupTime === time ? "selected" : ""} onClick={() => setPickupTime(time)}>
-                        {time}
+                    {selectedLocation.slots.map((time) => {
+                      const availability = slotAvailability[selectedLocation.id]?.[time];
+                      const disabled = !selectedLocation.acceptingOrders || availability?.full;
+                      return (
+                      <button key={time} disabled={disabled} className={pickupTime === time ? "selected" : ""} onClick={() => setPickupTime(time)}>
+                        {time}{availability?.full ? <small>Complet</small> : availability && availability.remaining <= 2 ? <small>{availability.remaining} places</small> : null}
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 </section>
 
@@ -623,6 +682,10 @@ export function PizzaShop() {
                     <input type="email" value={guestEmail} onChange={(event) => { setGuestEmail(event.target.value); setOrderError(""); }} placeholder="toi@exemple.fr" autoComplete="email" required />
                   </label>
                 )}
+                <label className="order-instructions">
+                  <span>Une précision pour la cuisine ? <small>{instructions.length}/160</small></span>
+                  <textarea value={instructions} maxLength={160} onChange={(event) => setInstructions(event.target.value)} placeholder="Ex. sans olives — optionnel" />
+                </label>
               </>
             )}
           </div>
@@ -655,7 +718,7 @@ export function PizzaShop() {
               <p className="section-kicker">C’est dans le four</p>
               <h2 id="order-title">Commande n°{orderNumber}</h2>
               <p>On t’attend {selectedLocation.dayLabel.toLowerCase()} à <strong>{pickupTime}</strong>, {selectedLocation.pickupLabel.toLowerCase()}.</p>
-              <p className={`mail-confirmation ${confirmationEmailSent ? "sent" : "failed"}`}><Mail size={14} /> {confirmationEmailSent ? "Le récapitulatif vient d’être envoyé par e-mail." : "Commande enregistrée. L’e-mail pourra être renvoyé depuis l’administration."}</p>
+              <p className="mail-confirmation sent"><Mail size={14} /> Le récapitulatif est en cours d’envoi par e-mail.</p>
               {confirmedAddons.length > 0 && (
                 <div className="confirmed-formula">
                   <span>En plus de tes pizzas</span>
@@ -663,21 +726,21 @@ export function PizzaShop() {
                 </div>
               )}
               {loyaltyEarned > 0 && <p className="loyalty-earned">+{loyaltyEarned} tampon{loyaltyEarned > 1 ? "s" : ""} ajouté{loyaltyEarned > 1 ? "s" : ""} à ta carte</p>}
-              <div className="order-ticket"><span>À présenter au camion</span><strong>#{orderNumber}</strong></div>
+              <div className="order-ticket"><div><span>À présenter au camion</span><strong>#{orderNumber}</strong></div>{orderQr && <Image src={orderQr} width={96} height={96} alt={`QR code de la commande ${orderNumber}`} unoptimized />}</div>
               <button onClick={() => setOrderNumber(null)}>Retourner à la carte</button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <AccountDialog open={accountOpen} onOpenChange={setAccountOpen} user={user} onUserChange={setUser} />
-      <LocationDialog open={locationOpen} onOpenChange={setLocationOpen} selectedId={locationId} onSelect={selectLocation} />
-      <FormulaDialog
+      {accountOpen && <AccountDialog open={accountOpen} onOpenChange={setAccountOpen} user={user} onUserChange={setUser} onReorder={reorder} />}
+      {locationOpen && <LocationDialog open={locationOpen} onOpenChange={setLocationOpen} selectedId={locationId} onSelect={selectLocation} />}
+      {formulaOpen && <FormulaDialog
         open={formulaOpen}
         onOpenChange={changeFormulaOpen}
         selection={addons}
         onSelect={chooseAddon}
-      />
+      />}
 
       <Sheet open={composerOpen} onOpenChange={setComposerOpen}>
         <SheetContent className="composer-sheet" side="right">

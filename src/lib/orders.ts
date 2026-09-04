@@ -1,7 +1,3 @@
-import { join } from "node:path";
+import { database } from "./data";
 
-import { OrderStore } from "./order-store";
-
-export const orderStore = new OrderStore(
-  join(process.env.FOURCHETTE_DATA_DIR ?? join(process.cwd(), ".data"), "orders.json"),
-);
+export const orderStore = database;

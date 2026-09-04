@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
-import { sendOrderEmail } from "@/lib/order-mail";
+import { processMailOutbox } from "@/lib/mail-outbox";
 import { orderStatuses } from "@/lib/order-store";
 import { orderStore } from "@/lib/orders";
 
@@ -15,15 +15,10 @@ export async function PATCH(request: Request, context: RouteContext<"/api/admin/
   const { id } = await context.params;
 
   try {
-    let order = await orderStore.updateStatus(id, parsed.data.status);
-    if (order.status === "picked_up" && order.emails.invoice.status !== "sent") {
-      try {
-        const messageId = await sendOrderEmail(order, "invoice");
-        order = await orderStore.recordEmail(order.id, "invoice", "sent", messageId);
-      } catch (error) {
-        order = await orderStore.recordEmail(order.id, "invoice", "failed", error instanceof Error ? error.message : "Échec SMTP");
-      }
-    }
+    const order = await orderStore.updateStatus(id, parsed.data.status);
+    if (order.status === "ready") orderStore.enqueue(order.id, "ready");
+    if (order.status === "picked_up" && order.emails.invoice.status !== "sent") orderStore.enqueue(order.id, "invoice");
+    after(processMailOutbox);
     return NextResponse.json({ order });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Impossible de modifier la commande." }, { status: 409 });

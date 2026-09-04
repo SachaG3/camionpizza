@@ -6,6 +6,8 @@ export type PickupLocation = {
   pickupLabel: string;
   note: string;
   slots: string[];
+  acceptingOrders: boolean;
+  slotCapacity: number;
 };
 
 export const locations: PickupLocation[] = [
@@ -17,6 +19,8 @@ export const locations: PickupLocation[] = [
     pickupLabel: "Portail principal",
     note: "Le spot du mardi",
     slots: ["12:15", "12:30", "12:45", "13:00"],
+    acceptingOrders: true,
+    slotCapacity: 8,
   },
   {
     id: "campus-saint-charles",
@@ -26,6 +30,8 @@ export const locations: PickupLocation[] = [
     pickupLabel: "Parvis de la bibliothèque",
     note: "Le spot du mercredi",
     slots: ["12:00", "12:20", "12:40", "13:00"],
+    acceptingOrders: true,
+    slotCapacity: 8,
   },
   {
     id: "iut-joliette",
@@ -35,6 +41,8 @@ export const locations: PickupLocation[] = [
     pickupLabel: "Entrée côté quai",
     note: "Le spot du vendredi",
     slots: ["11:50", "12:10", "12:30", "12:50"],
+    acceptingOrders: false,
+    slotCapacity: 8,
   },
 ];
 

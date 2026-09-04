@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
-import { sendOrderEmail } from "@/lib/order-mail";
+import { processMailOutbox } from "@/lib/mail-outbox";
 import { orderStore } from "@/lib/orders";
 
 const resendSchema = z.object({ kind: z.enum(["confirmation", "invoice"]) });
@@ -18,11 +18,7 @@ export async function POST(request: Request, context: RouteContext<"/api/admin/o
     return NextResponse.json({ error: "La facture est envoyée après récupération." }, { status: 409 });
   }
 
-  try {
-    const messageId = await sendOrderEmail(order, parsed.data.kind);
-    return NextResponse.json({ order: await orderStore.recordEmail(id, parsed.data.kind, "sent", messageId) });
-  } catch (error) {
-    const updated = await orderStore.recordEmail(id, parsed.data.kind, "failed", error instanceof Error ? error.message : "Échec SMTP");
-    return NextResponse.json({ error: "L’e-mail n’a pas pu être envoyé.", order: updated }, { status: 502 });
-  }
+  orderStore.enqueue(id, parsed.data.kind);
+  after(processMailOutbox);
+  return NextResponse.json({ queued: true, order });
 }

@@ -28,11 +28,13 @@ export function AccountDialog({
   onOpenChange,
   user,
   onUserChange,
+  onReorder,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: PublicLoyaltyUser | null;
   onUserChange: (user: PublicLoyaltyUser | null) => void;
+  onReorder: (order: CustomerOrder) => void;
 }) {
   const [mode, setMode] = useState<"register" | "login">("register");
   const [pending, setPending] = useState(false);
@@ -81,6 +83,16 @@ export function AccountDialog({
     await fetch("/api/auth/logout", { method: "POST" });
     onUserChange(null);
     setMode("login");
+    setPending(false);
+  }
+
+  async function cancelOrder(order: CustomerOrder) {
+    setPending(true);
+    setError("");
+    const response = await fetch(`/api/orders/${order.id}/cancel`, { method: "POST" });
+    const result = await response.json();
+    if (response.ok) setOrders((current) => current.map((item) => item.id === order.id ? result.order : item));
+    else setError(result.error ?? "Annulation impossible.");
     setPending(false);
   }
 
@@ -142,6 +154,10 @@ export function AccountDialog({
                       <strong>{euro(order.total)}</strong>
                     </div>
                     {order.status === "picked_up" && <a href={`/api/orders/${order.id}/invoice`}><FileDown size={14} /> Télécharger la facture</a>}
+                    <div className="history-actions">
+                      <button type="button" onClick={() => onReorder(order)}>Recommander</button>
+                      {order.status === "received" && <button type="button" className="cancel" disabled={pending} onClick={() => cancelOrder(order)}>Annuler</button>}
+                    </div>
                   </article>
                 )) : <div className="history-empty"><ReceiptText size={24} /><strong>Pas encore de commande</strong><span>Ta prochaine pause apparaîtra ici.</span></div>}
               </div>

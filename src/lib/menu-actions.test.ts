@@ -54,7 +54,7 @@ describe("createDefaultCartLine", () => {
       id: "burrata-solo-tomate-none",
       pizzaId: "burrata",
       name: "La Boursière",
-      image: "/images/pizza-burrata.jpg",
+      image: "/images/pizza-burrata.webp",
       unitPrice: 11.5,
       quantity: 1,
       details: ["Solo · 26 cm", "Tomate rôtie"],

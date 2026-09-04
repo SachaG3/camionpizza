@@ -7,6 +7,8 @@ export type Pizza = {
   tags: string[];
   accent: string;
   popular?: boolean;
+  allergens: string[];
+  availability?: "available" | "limited" | "sold_out";
 };
 
 export const pizzas: Pizza[] = [
@@ -15,9 +17,10 @@ export const pizzas: Pizza[] = [
     name: "La Major",
     description: "Tomate rôtie, fior di latte, basilic frais et huile d’olive.",
     price: 8.5,
-    image: "/images/pizza-margherita.jpg",
+    image: "/images/pizza-margherita.webp",
     tags: ["Classique", "Végé"],
     accent: "#d8452f",
+    allergens: ["Gluten", "Lait"],
     popular: true,
   },
   {
@@ -25,18 +28,20 @@ export const pizzas: Pizza[] = [
     name: "La Boursière",
     description: "Crème de parmesan, burrata, roquette et pesto de pistache.",
     price: 11.5,
-    image: "/images/pizza-burrata.jpg",
+    image: "/images/pizza-burrata.webp",
     tags: ["Crémeuse", "Signature"],
     accent: "#73964b",
+    allergens: ["Gluten", "Lait", "Fruits à coque"],
   },
   {
     id: "pepperoni",
     name: "La Récré",
     description: "Tomate, mozzarella, pepperoni croustillant et miel pimenté.",
     price: 10,
-    image: "/images/pizza-pepperoni.jpg",
+    image: "/images/pizza-pepperoni.webp",
     tags: ["Épicée", "Best-seller"],
     accent: "#e66d2f",
+    allergens: ["Gluten", "Lait"],
     popular: true,
   },
   {
@@ -44,27 +49,30 @@ export const pizzas: Pizza[] = [
     name: "La Mention Très Bien",
     description: "Courgette, poivron, champignon, oignon rouge et feta.",
     price: 10.5,
-    image: "/images/pizza-veggie.jpg",
+    image: "/images/pizza-veggie.webp",
     tags: ["Végé", "Fraîche"],
     accent: "#4e7e55",
+    allergens: ["Gluten", "Lait"],
   },
   {
     id: "nduja",
     name: "La Copie Double",
     description: "Tomate, mozzarella fumée, nduja relevée et basilic frais.",
     price: 10.5,
-    image: "/images/pizza-diavola.jpg",
+    image: "/images/pizza-diavola.webp",
     tags: ["Épicée", "Signature"],
     accent: "#c33b2a",
+    allergens: ["Gluten", "Lait"],
   },
   {
     id: "chicken",
     name: "La Pause Déj’",
     description: "Poulet mariné, ananas rôti, oignon rouge et sauce barbecue.",
     price: 11,
-    image: "/images/pizza-campus.jpg",
+    image: "/images/pizza-campus.webp",
     tags: ["Sucrée-salée", "Généreuse"],
     accent: "#dc7a2c",
+    allergens: ["Gluten", "Lait"],
     popular: true,
   },
   {
@@ -72,18 +80,22 @@ export const pizzas: Pizza[] = [
     name: "La Dernière Heure",
     description: "Tomates cerises, mozzarella, ail rôti, origan et huile verte.",
     price: 9.5,
-    image: "/images/pizza-tomato.jpg",
+    image: "/images/pizza-tomato.webp",
     tags: ["Végé", "Fraîche"],
     accent: "#c94b32",
+    allergens: ["Gluten", "Lait"],
+    availability: "limited",
   },
   {
     id: "four-cheese",
     name: "La Quatre Matières",
     description: "Mozzarella, chèvre, gorgonzola et parmesan affiné.",
     price: 11,
-    image: "/images/pizza-four-cheese.jpg",
+    image: "/images/pizza-four-cheese.webp",
     tags: ["Végé", "Crémeuse"],
     accent: "#bd8a3e",
+    allergens: ["Gluten", "Lait"],
+    availability: "sold_out",
   },
 ];
 
