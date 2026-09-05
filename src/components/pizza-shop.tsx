@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { CampusExperience } from "@/components/campus-experience";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
@@ -448,7 +449,7 @@ export function PizzaShop() {
         <div className="intro-visual">
           <div className="hero-photo">
             <Image
-              src="/images/pizza-burrata.jpg"
+              src="/images/pizza-burrata.webp"
               alt="Pizza artisanale à la burrata"
               fill
               priority
@@ -462,6 +463,8 @@ export function PizzaShop() {
           <div className="hand-note">Pâte fraîche<br />chaque matin ↗</div>
         </div>
       </section>
+
+      <CampusExperience user={user} onOrder={openComposer} onAccount={() => setAccountOpen(true)} />
 
       <section className="menu-section" id="menu">
         <div className="section-heading">
