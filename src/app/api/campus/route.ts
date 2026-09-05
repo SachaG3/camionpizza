@@ -20,7 +20,7 @@ async function context() {
   return { identity: user ? `user:${user.id}` : `visitor:${token}`, token, isAdmin: user?.role === "admin" };
 }
 function reply(state: object, ctx: Awaited<ReturnType<typeof context>>) {
-  const response = NextResponse.json({ ...state, isAdmin: ctx.isAdmin }, { headers: { "Cache-Control": "no-store" } });
+  const response = NextResponse.json({ ...state, settings: store.getSettings(), isAdmin: ctx.isAdmin }, { headers: { "Cache-Control": "no-store" } });
   response.cookies.set("fourchette-campus", ctx.token, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
   return response;
 }

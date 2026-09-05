@@ -464,9 +464,8 @@ export function PizzaShop() {
         </div>
       </section>
 
-      <CampusExperience user={user} onOrder={openComposer} onAccount={() => setAccountOpen(true)} />
-
       <section className="menu-section" id="menu">
+        <CampusExperience user={user} onOrder={openComposer} onAccount={() => setAccountOpen(true)} />
         <div className="section-heading">
           <div>
             <p className="section-kicker">Notre sélection</p>
@@ -597,6 +596,8 @@ export function PizzaShop() {
           <strong>Voir le panier · {euro(cartValue)}</strong>
         </button>
       )}
+
+      <CampusExperience surface="battle" user={user} onOrder={openComposer} onAccount={() => setAccountOpen(true)} />
 
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
         <SheetContent className="cart-sheet" side="right">

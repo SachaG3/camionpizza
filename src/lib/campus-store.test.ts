@@ -13,6 +13,17 @@ beforeEach(() => {
 afterEach(() => { store?.dispose(); rmSync(directory, { recursive: true, force: true }); });
 
 describe("campus store", () => {
+  it("persists publication settings and reopens without losing votes", () => {
+    store.vote("one", "burrata");
+    store.closeBattle("admin");
+    store.reopenBattle();
+    expect(store.getState("one").battle).toMatchObject({ closed: false, counts: { burrata: 1 } });
+    store.setSettings({ quiz: false, battle: false, club: true });
+    expect(() => store.vote("two", "nduja")).toThrow("désactiv");
+    expect(() => store.completeQuiz("two")).toThrow("désactiv");
+    expect(store.adminSummary().votes).toBe(1);
+    expect(store.getSettings().quiz).toBe(false);
+  });
   it("closes on the majority, never overrides it, and blocks further votes", () => {
     store.vote("user:one", "burrata");
     expect(store.closeBattle("admin:one", "nduja").battle.winner).toBe("burrata");

@@ -29,7 +29,21 @@ export class CampusStore {
         id INTEGER PRIMARY KEY CHECK(id=1),
         winner TEXT CHECK(winner IN ('burrata','nduja'))
       );
-      INSERT OR IGNORE INTO battle(id) VALUES(1);`);
+      INSERT OR IGNORE INTO battle(id) VALUES(1);
+      CREATE TABLE IF NOT EXISTS campus_settings (id INTEGER PRIMARY KEY, quiz INTEGER NOT NULL, battle INTEGER NOT NULL, club INTEGER NOT NULL);
+      INSERT OR IGNORE INTO campus_settings VALUES(1,1,1,1);`);
+  }
+  getSettings() {
+    const row = this.db.prepare("SELECT quiz, battle, club FROM campus_settings WHERE id=1").get()!;
+    return { quiz: row.quiz === 1, battle: row.battle === 1, club: row.club === 1 };
+  }
+  setSettings(settings: { quiz: boolean; battle: boolean; club: boolean }) {
+    this.db.prepare("UPDATE campus_settings SET quiz=?, battle=?, club=? WHERE id=1").run(Number(settings.quiz), Number(settings.battle), Number(settings.club));
+  }
+  reopenBattle() { this.db.prepare("UPDATE battle SET winner=NULL WHERE id=1").run(); }
+  adminSummary() {
+    const row = this.db.prepare("SELECT COUNT(*) AS participants, COALESCE(SUM(quiz),0) AS quizzes, COUNT(choice) AS votes, COUNT(reward_code) AS badges FROM participants").get()!;
+    return { participants: Number(row.participants), quizzes: Number(row.quizzes), votes: Number(row.votes), badges: Number(row.badges) };
   }
   dispose() { this.db.close(); }
   private transaction<T>(operation: () => T): T {
@@ -44,6 +58,7 @@ export class CampusStore {
     }
   }
   vote(identity: string, choice: CampusChoice) {
+    if (!this.getSettings().battle) throw new CampusError("DISABLED", "Le vote est désactivé.");
     return this.transaction(() => {
       if (this.getState(identity).battle.closed) throw new CampusError("BATTLE_CLOSED", "Le vote est clos.");
       this.db.prepare(`INSERT INTO participants(identity,choice) VALUES(?,?)
@@ -64,11 +79,13 @@ export class CampusStore {
     });
   }
   completeQuiz(identity: string) {
+    if (!this.getSettings().quiz) throw new CampusError("DISABLED", "Le quiz est désactivé.");
     this.db.prepare(`INSERT INTO participants(identity,quiz) VALUES(?,1)
       ON CONFLICT(identity) DO UPDATE SET quiz=1`).run(identity);
     return this.getState(identity);
   }
   claim(identity: string) {
+    if (!this.getSettings().club) throw new CampusError("DISABLED", "Les défis sont désactivés.");
     const state = this.getState(identity);
     if (!state.club.quiz || !state.club.vote) {
       throw new CampusError("NOT_ELIGIBLE", "Terminez le quiz et le vote pour obtenir le badge.");

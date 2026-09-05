@@ -1,7 +1,8 @@
 "use client";
 
+import { CampusExperience } from "@/components/campus-experience";
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowUpRight, FileDown, Gift, LoaderCircle, LogOut, PackageCheck, Pizza, ReceiptText, UserRound } from "lucide-react";
+import { ArrowUpRight, FileDown, Gift, LoaderCircle, LogOut, PackageCheck, ReceiptText, UserRound } from "lucide-react";
 
 import {
   Dialog,
@@ -115,29 +116,9 @@ export function AccountDialog({
               <button type="button" role="tab" aria-selected={section === "orders"} className={section === "orders" ? "active" : ""} onClick={() => setSection("orders")}>Mes commandes <span>{orders.length}</span></button>
             </div>
 
-            {section === "loyalty" ? <><div className="stamp-card">
-              <div className="stamp-card-heading">
-                <span>Ta carte fidélité</span>
-                <strong>{user.stamps}/6</strong>
-              </div>
-              <div className="stamp-track" aria-label={`${user.stamps} tampons sur 6`}>
-                {Array.from({ length: 6 }, (_, index) => (
-                  <span className={index < user.stamps ? "earned" : ""} key={index}>
-                    <Pizza size={18} />
-                  </span>
-                ))}
-              </div>
-              <p>
-                {user.stamps === 5
-                  ? "Plus qu’une pizza avant ta récompense."
-                  : `Encore ${6 - user.stamps} pizzas avant la prochaine offerte.`}
-              </p>
-            </div>
-
-            <div className="reward-summary">
-              <div><strong>{user.rewards}</strong><span>pizza{user.rewards > 1 ? "s" : ""} offerte{user.rewards > 1 ? "s" : ""}</span></div>
-              <div><strong>{user.totalOrders}</strong><span>commande{user.totalOrders > 1 ? "s" : ""}</span></div>
-            </div>
+            {section === "loyalty" ? <>
+            <div className="club-next-reward"><Gift size={22} /><div><strong>{user.rewards > 0 ? `${user.rewards} pizza(s) offerte(s) disponible(s)` : `Plus que ${6 - user.stamps} pizzas avant la prochaine offerte`}</strong><p>Ton prochain bon moment commence ici.</p></div></div>
+            <CampusExperience surface="club" user={user} onOrder={() => onOpenChange(false)} onAccount={() => onOpenChange(false)} />
 
             {user.role === "admin" && <a className="admin-access" href="/admin"><PackageCheck size={16} /> Gérer les commandes <ArrowUpRight size={15} /></a>}
             </> : (
