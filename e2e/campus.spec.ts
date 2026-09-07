@@ -21,7 +21,7 @@ test("integrated quiz, inline battle and account club work together", async ({ p
   await expect(page.getByRole("button", { name: "Ton vote est compté" })).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "Ouvrir mon compte" }).click();
-  await page.getByRole("button", { name: "Débloquer mon badge" }).click();
+  await page.getByRole("button", { name: "Débloquer", exact: true }).click();
   await expect(page.locator(".reward-code")).toContainText("PIONNIER-FOURCHETTE");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

@@ -102,12 +102,12 @@ export function AccountDialog({
       <DialogContent className="account-dialog">
         {user ? (
           <div className="loyalty-profile">
-            <DialogHeader>
+            <DialogHeader className="club-profile-header">
               <span className="account-illustration"><Gift size={25} /></span>
               <p className="composer-kicker">Club Fourchette</p>
-              <DialogTitle>Salut {user.name} !</DialogTitle>
+              <DialogTitle>Ton espace gourmand</DialogTitle>
               <DialogDescription>
-                Chaque pizza commandée ajoute un tampon. La sixième débloque une pizza offerte.
+                {user.name} · tes tampons, tes récompenses et tes défis campus.
               </DialogDescription>
             </DialogHeader>
 
@@ -117,7 +117,6 @@ export function AccountDialog({
             </div>
 
             {section === "loyalty" ? <>
-            <div className="club-next-reward"><Gift size={22} /><div><strong>{user.rewards > 0 ? `${user.rewards} pizza(s) offerte(s) disponible(s)` : `Plus que ${6 - user.stamps} pizzas avant la prochaine offerte`}</strong><p>Ton prochain bon moment commence ici.</p></div></div>
             <CampusExperience surface="club" user={user} onOrder={() => onOpenChange(false)} onAccount={() => onOpenChange(false)} />
 
             {user.role === "admin" && <a className="admin-access" href="/admin"><PackageCheck size={16} /> Gérer les commandes <ArrowUpRight size={15} /></a>}
