@@ -4,3 +4,26 @@
 
 .site-shell .footer-brand{color:#fff5df}.site-shell .topbar .location-pill{position:static;transform:none}.site-shell #campus-battle .battle-duel{gap:0}.site-shell #campus-battle .battle-candidate h3{font-size:40px;line-height:1.05}.site-shell #campus-battle .vote-result,.site-shell #campus-battle .vote-meter{position:relative;z-index:2}
 @media(max-width:760px){.site-shell .topbar{height:auto;min-height:110px}.site-shell #campus-battle .battle-candidate h3{font-size:28px;line-height:1.03;min-height:65px}.site-shell #campus-battle .battle-candidate>img{bottom:60px;width:145px;height:145px}.site-shell #campus-battle .battle-candidate p{min-height:30px}.site-shell #campus-battle .vote-result{margin-top:0}.site-shell #campus-battle .battle-candidate{min-height:430px}}
+
+/* One composition: original hero, then the campus choice. */
+.site-shell .intro{max-width:1180px;margin:32px auto 0;min-height:0;grid-template-columns:1fr 1fr;gap:42px;background:transparent;border:0;align-items:center}
+.site-shell .intro-copy{padding:30px 0 45px}
+.site-shell .intro h1{font-size:clamp(52px,5.1vw,74px);line-height:1;letter-spacing:-.05em;margin:22px 0}
+.site-shell .intro-copy>p{font-size:15px;max-width:445px;line-height:1.7}
+.site-shell .intro-actions{gap:18px;margin-top:28px;flex-wrap:wrap}
+.site-shell .intro-visual{padding:0;align-self:stretch;min-height:480px}
+.site-shell .hero-photo{min-height:480px;border-radius:8px 8px 8px 60px}
+.site-shell .price-sticker{top:22px;right:22px;width:92px;height:92px;box-shadow:3px 4px 0 var(--ink)}
+.site-shell .price-sticker strong{font-size:34px}
+.site-shell .hand-note{left:-18px;bottom:24px;font-size:14px;padding:11px 15px}
+.site-shell #campus-battle{margin-top:42px;padding-top:24px;border-top:1px solid #dcd7cb}
+.site-shell #campus-battle .campus-dialog-head{margin-bottom:10px}
+.site-shell #campus-battle .campus-dialog-head h2{font-family:var(--font-fraunces),Georgia,serif;font-size:27px;letter-spacing:-.6px;text-transform:none;font-weight:600}
+.site-shell #campus-battle .battle-status{justify-content:flex-start;gap:16px;color:#555a4c;font-size:11px;margin-bottom:18px}
+.site-shell #campus-battle .battle-candidate{min-height:340px;padding:26px}
+.site-shell #campus-battle .battle-candidate h3{font-family:var(--font-fraunces),Georgia,serif;font-size:34px;min-height:76px;margin:10px 0}
+.site-shell #campus-battle .battle-candidate>img{width:290px;height:290px;bottom:-65px;right:-18px}
+.site-shell #campus-battle .battle-candidate button{margin-top:20px}
+.site-shell #campus-battle .battle-note{margin:14px 0 25px;max-width:none}
+@media(min-width:761px) and (max-width:1240px){.site-shell .intro{margin-left:24px;margin-right:24px;gap:30px}.site-shell .intro h1{font-size:60px}.site-shell .intro-visual,.site-shell .hero-photo{min-height:440px}}
+@media(max-width:760px){.site-shell .intro{display:flex;flex-direction:column;gap:24px;margin:24px 20px 0}.site-shell .intro-copy{padding:0;width:100%}.site-shell .intro h1{font-size:48px;line-height:.98;max-width:350px;margin:18px 0}.site-shell .intro-copy>p{font-size:13px;line-height:1.7}.site-shell .intro-actions{margin-top:22px;display:flex;flex-direction:row;align-items:center;gap:12px}.site-shell .intro-actions .primary-action{width:auto;min-height:44px;height:44px;font-size:12px;padding:0 16px}.site-shell .prep-time{font-size:10px;gap:5px}.site-shell .intro-visual{min-height:300px;width:100%;padding:0}.site-shell .hero-photo{min-height:300px;height:300px;border-radius:6px 6px 6px 40px}.site-shell .price-sticker{width:76px;height:76px;top:16px;right:16px}.site-shell .price-sticker strong{font-size:29px}.site-shell .price-sticker small{font-size:7px}.site-shell .hand-note{left:12px;bottom:14px;font-size:12px;padding:9px 12px}.site-shell #campus-battle{margin-top:28px;padding-top:22px}.site-shell #campus-battle .campus-dialog-head h2{font-size:24px}.site-shell #campus-battle .battle-candidate{padding:18px 13px;min-height:415px}.site-shell #campus-battle .battle-candidate h3{font-size:27px;min-height:65px;max-width:135px}.site-shell #campus-battle .battle-candidate>img{width:145px;height:145px;bottom:62px;right:-12px}.site-shell #campus-battle .battle-candidate button{margin:0}.site-shell #campus-battle .battle-note{font-size:10px;line-height:1.6}}
