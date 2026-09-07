@@ -12,6 +12,7 @@ import {
   CalendarClock,
   Check,
   ChevronDown,
+  Clock3,
   Flame,
   MapPin,
   Mail,
@@ -430,9 +431,39 @@ export function PizzaShop() {
       </header>
 
       <section className="intro" id="top">
-        <h1>Ta pause mérite<br />une <em>vraie pizza.</em></h1>
-        <div className="editorial-intro-side"><p>Pâte fraîche. Recettes qui claquent.<br />À récupérer entre deux cours.</p><a href="#menu">Choisir ma pizza <ArrowRight size={17} /></a><small>Préparation estimée : {estimateMinutes} min</small></div>
+        <div className="intro-copy">
+          <div className="eyebrow"><span /> Le food-truck du campus</div>
+          <h1>La pizza qui arrive<br />avant la <em>sonnerie.</em></h1>
+          <p>
+            Choisis une recette ou compose la tienne. On la prépare,
+            tu la récupères sans perdre ta pause.
+          </p>
+          <div className="intro-actions">
+            <a className="primary-action" href="#menu">
+              Voir la carte <ArrowRight size={18} />
+            </a>
+            <span className="prep-time"><Clock3 size={17} /> Prête dans ~{estimateMinutes} min</span>
+          </div>
+        </div>
+
+        <div className="intro-visual">
+          <div className="hero-photo">
+            <Image
+              src="/images/pizza-burrata.webp"
+              alt="Pizza artisanale à la burrata"
+              fill
+              priority
+              sizes="(max-width: 760px) 100vw, 48vw"
+            />
+          </div>
+          <div className="price-sticker">
+            <small>À partir de</small>
+            <strong>8<span>€50</span></strong>
+          </div>
+          <div className="hand-note">Pâte fraîche<br />chaque matin ↗</div>
+        </div>
       </section>
+
       <CampusExperience surface="battle" user={user} onOrder={openComposer} onAccount={() => setAccountOpen(true)} />
 
       <section className="menu-section" id="menu">
