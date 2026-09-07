@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 
 test("mobile guest can place an order without horizontal overflow", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /La pizza qui arrive/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Ta pause mérite/i })).toBeVisible();
   await page.getByLabel("Ajouter La Major en taille Solo").click();
   await page.getByLabel("Ouvrir le panier").click();
   await page.getByPlaceholder("toi@exemple.fr").fill("e2e@example.test");

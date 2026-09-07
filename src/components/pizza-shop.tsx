@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import "./editorial-home.css";
 import { CampusExperience } from "@/components/campus-experience";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -11,7 +12,6 @@ import {
   CalendarClock,
   Check,
   ChevronDown,
-  Clock3,
   Flame,
   MapPin,
   Mail,
@@ -404,8 +404,7 @@ export function PizzaShop() {
 
       <header className="topbar">
         <a className="brand" href="#top" aria-label="Fourchette, accueil">
-          <span className="brand-mark" aria-hidden="true">F</span>
-          <span>Fourchette</span>
+          <span>fourchette.</span>
         </a>
 
         <button className="location-pill" type="button" onClick={() => setLocationOpen(true)}>
@@ -431,45 +430,17 @@ export function PizzaShop() {
       </header>
 
       <section className="intro" id="top">
-        <div className="intro-copy">
-          <div className="eyebrow"><span /> Le food-truck du campus</div>
-          <h1>La pizza qui arrive<br />avant la <em>sonnerie.</em></h1>
-          <p>
-            Choisis une recette ou compose la tienne. On la prépare,
-            tu la récupères sans perdre ta pause.
-          </p>
-          <div className="intro-actions">
-            <a className="primary-action" href="#menu">
-              Voir la carte <ArrowRight size={18} />
-            </a>
-            <span className="prep-time"><Clock3 size={17} /> Prête dans ~{estimateMinutes} min</span>
-          </div>
-        </div>
-
-        <div className="intro-visual">
-          <div className="hero-photo">
-            <Image
-              src="/images/pizza-burrata.webp"
-              alt="Pizza artisanale à la burrata"
-              fill
-              priority
-              sizes="(max-width: 760px) 100vw, 48vw"
-            />
-          </div>
-          <div className="price-sticker">
-            <small>À partir de</small>
-            <strong>8<span>€50</span></strong>
-          </div>
-          <div className="hand-note">Pâte fraîche<br />chaque matin ↗</div>
-        </div>
+        <h1>Ta pause mérite<br />une <em>vraie pizza.</em></h1>
+        <div className="editorial-intro-side"><p>Pâte fraîche. Recettes qui claquent.<br />À récupérer entre deux cours.</p><a href="#menu">Choisir ma pizza <ArrowRight size={17} /></a><small>Préparation estimée : {estimateMinutes} min</small></div>
       </section>
+      <CampusExperience surface="battle" user={user} onOrder={openComposer} onAccount={() => setAccountOpen(true)} />
 
       <section className="menu-section" id="menu">
         <CampusExperience user={user} onOrder={openComposer} onAccount={() => setAccountOpen(true)} />
         <div className="section-heading">
           <div>
             <p className="section-kicker">Notre sélection</p>
-            <h2>Les préférées du bahut</h2>
+            <h2>Et toi, tu prends quoi ?</h2>
           </div>
           <button className="compose-shortcut" onClick={() => openComposer(pizzas[0])}>
             <Sparkles size={17} /> Composer de zéro
@@ -597,7 +568,7 @@ export function PizzaShop() {
         </button>
       )}
 
-      <CampusExperience surface="battle" user={user} onOrder={openComposer} onAccount={() => setAccountOpen(true)} />
+
 
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
         <SheetContent className="cart-sheet" side="right">
