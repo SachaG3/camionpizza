@@ -410,7 +410,7 @@ footer small a { color: inherit; text-decoration: underline; text-underline-offs
 .admin-main { min-width: 0; padding: 48px clamp(24px, 5vw, 70px) 70px; }
 .admin-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 .admin-header h1 { margin: 5px 0 4px; font-family: var(--font-fraunces), serif; font-size: clamp(38px, 5vw, 62px); line-height: 1; letter-spacing: -.04em; font-weight: 620; }
-.admin-header > div > span { color: var(--muted); font-size: 11px; }
+.admin-header > div > span { color: #625e57; font-size: 11px; }
 .service-live { padding: 9px 12px; border: 1px solid #cbd7c7; border-radius: 99px; display: flex; align-items: center; gap: 7px; background: #f4f7f0; color: var(--olive); font-size: 9px; font-weight: 800; }
 .service-live i { width: 7px; height: 7px; border-radius: 50%; background: #6f9967; box-shadow: 0 0 0 4px rgba(111,153,103,.13); }
 .admin-toolbar { margin: 35px 0 19px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
@@ -482,7 +482,9 @@ footer small a { color: inherit; text-decoration: underline; text-underline-offs
   .admin-shell { display: block; }
   .admin-rail { height: 66px; padding: 0 16px; position: relative; flex-direction: row; align-items: center; }
   .admin-rail nav { margin: 0 0 0 auto; }
-  .admin-rail nav a { min-height: 40px; }
+  .admin-rail nav { display: flex; gap: 4px; }
+  .admin-rail nav a { min-height: 40px; min-width: 44px; justify-content: center; font-size: 0; gap: 6px; }
+  .admin-rail nav a span { font-size: 9px; }
   .admin-back { margin: 0 0 0 8px; font-size: 0; }
   .admin-brand > span:last-child { display: none; }
   .admin-main { padding: 34px 14px 60px; }

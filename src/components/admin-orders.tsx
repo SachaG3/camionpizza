@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Bell, Check, ChefHat, Clock3, Mail, PackageCheck, Printer, RefreshCw, Search, Send, ShoppingBag, Volume2 } from "lucide-react";
+import { Gamepad2, ArrowLeft, Bell, Check, ChefHat, Clock3, Mail, PackageCheck, Printer, RefreshCw, Search, Send, ShoppingBag, Volume2 } from "lucide-react";
 
 import type { OutboxEntry } from "@/lib/database";
 import type { CustomerOrder, EmailKind, OrderStatus } from "@/lib/order-store";
@@ -75,7 +75,7 @@ export function AdminOrders({ initialOrders, initialOutbox }: { initialOrders: C
   }
 
   return <main className="admin-shell">
-    <aside className="admin-rail"><Link className="brand admin-brand" href="/"><span className="brand-mark">DB</span><span>Pizza del Bosco</span></Link><nav><a className="active" href="#orders"><ShoppingBag size={17} /> Commandes <span>{active.length}</span></a><Link href="/admin/campus">Campus & marketing</Link></nav><Link className="admin-back" href="/"><ArrowLeft size={16} /> Retour à la boutique</Link></aside>
+    <aside className="admin-rail"><Link className="brand admin-brand" href="/"><span className="brand-mark">DB</span><span>Pizza del Bosco</span></Link><nav><a className="active" href="#orders"><ShoppingBag size={17} /> Commandes <span>{active.length}</span></a><Link href="/admin/campus"><Gamepad2 size={17} /> Campus & marketing</Link></nav><Link className="admin-back" href="/"><ArrowLeft size={16} /> Retour à la boutique</Link></aside>
     <section className="admin-main" id="orders">
       <header className="admin-header"><div><p className="section-kicker">Le passe du camion</p><h1>Commandes du jour</h1><span>Mise à jour automatique toutes les 10 secondes</span></div><div className="admin-live-actions"><button className={sound ? "enabled" : ""} onClick={() => setSound((value) => !value)}><Volume2 size={15} /> Son {sound ? "activé" : "coupé"}</button><span className="service-live"><i /> Service ouvert</span></div></header>
       <div className="admin-stats"><div><span>À traiter</span><strong>{active.length}</strong></div><div><span>Pizzas</span><strong>{pizzaCount}</strong></div><div><span>Recette favorite</span><strong>{popular}</strong></div><div><span>CA encaissé</span><strong>{euro(revenue)}</strong></div></div>
