@@ -3,7 +3,8 @@ import { expect, test } from "@playwright/test";
 
 test("about page tells the story and links a stop to the menu", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Lire notre histoire" }).click();
+  await expect(page.locator("#a-propos")).toHaveCount(0);
+  await page.locator(".topbar").getByRole("link", { name: "À propos" }).click();
   await expect(page).toHaveURL(/\/a-propos$/);
   await expect(page.getByRole("heading", { level: 1, name: /Une pizzeria qui a pris/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "IUT de Mulhouse" })).toBeVisible();

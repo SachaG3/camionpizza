@@ -421,6 +421,7 @@ export function PizzaShop() {
         </button>
 
         <div className="header-actions">
+          <a className="nav-link" href="/a-propos">À propos</a>
           <button className={`account-button ${user ? "connected" : ""}`} type="button" aria-label={user ? "Ouvrir mon compte" : "Se connecter ou créer un compte"} onClick={() => setAccountOpen(true)}>
             <span className="account-avatar">{user ? user.name.slice(0, 1).toUpperCase() : <UserRound size={17} />}</span>
             <span>{user ? user.name : "Mon compte"}</span>
@@ -586,46 +587,6 @@ export function PizzaShop() {
           <span><strong>01</strong> Commande en ligne</span>
           <span><strong>02</strong> Préparée devant toi</span>
           <span><strong>03</strong> Récupérée au camion</span>
-        </div>
-      </section>
-
-      <section className="about-section" id="a-propos" aria-labelledby="about-title">
-        <div className="about-story">
-          <p className="section-kicker">À propos</p>
-          <h2 id="about-title">Une pizzeria qui a pris la route du campus.</h2>
-          <p>
-            Pizza del Bosco, c’est un camion, un four et une idée simple : servir une vraie pizza
-            entre deux cours, sans sacrifier la pause. Pâte maturée 48 h, sauce tomate maison et
-            produits choisis chez des producteurs d’Alsace dès que la saison le permet.
-          </p>
-          <dl className="about-facts">
-            <div><dt>48 h</dt><dd>de maturation pour la pâte</dd></div>
-            <div><dt>~{estimateMinutes} min</dt><dd>entre la commande et le retrait</dd></div>
-            <div><dt>2</dt><dd>arrêts à Mulhouse chaque semaine</dd></div>
-          </dl>
-          <a className="about-more" href="/a-propos">Lire notre histoire <ArrowRight size={17} /></a>
-        </div>
-        <div className="about-stops" aria-label="Où passe le camion">
-          <p className="section-kicker">Où passe le camion</p>
-          {locations.map((location, index) => (
-            <button
-              key={location.id}
-              type="button"
-              className={`about-stop ${location.id === selectedLocation.id ? "active" : ""}`}
-              aria-pressed={location.id === selectedLocation.id}
-              onClick={() => selectLocation(location.id)}
-            >
-              <span className="about-stop-index">{String(index + 1).padStart(2, "0")}</span>
-              <span className="about-stop-copy">
-                <strong>{location.name}</strong>
-                <small>{location.pickupLabel}</small>
-              </span>
-              <span className="about-stop-time">
-                <strong>{location.dayLabel}</strong>
-                <small>{location.hours}</small>
-              </span>
-            </button>
-          ))}
         </div>
       </section>
 
