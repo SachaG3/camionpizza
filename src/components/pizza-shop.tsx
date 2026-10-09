@@ -404,8 +404,8 @@ export function PizzaShop() {
       </AnimatePresence>
 
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Fourchette, accueil">
-          <span>fourchette.</span>
+        <a className="brand" href="#top" aria-label="Pizza del Bosco, accueil">
+          <span>pizza del bosco.</span>
         </a>
 
         <button className="location-pill" type="button" onClick={() => setLocationOpen(true)}>
@@ -449,7 +449,7 @@ export function PizzaShop() {
         <div className="intro-visual">
           <div className="hero-photo">
             <Image
-              src="/images/pizza-burrata-studio.webp"
+              src="/images/pizza-burrata-bosco.webp"
               alt="Pizza artisanale à la burrata"
               fill
               priority
@@ -587,7 +587,7 @@ export function PizzaShop() {
       </section>
 
       <footer>
-        <div className="brand footer-brand"><span className="brand-mark">F</span><span>Fourchette</span></div>
+        <div className="brand footer-brand"><span className="brand-mark">DB</span><span>Pizza del Bosco</span></div>
         <p>Pizza chaude. Pause intacte.</p>
         <small>Projet scolaire · Démonstration</small>
       </footer>

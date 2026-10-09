@@ -32,6 +32,7 @@ export class CampusStore {
       INSERT OR IGNORE INTO battle(id) VALUES(1);
       CREATE TABLE IF NOT EXISTS campus_settings (id INTEGER PRIMARY KEY, quiz INTEGER NOT NULL, battle INTEGER NOT NULL, club INTEGER NOT NULL);
       INSERT OR IGNORE INTO campus_settings VALUES(1,1,1,1);`);
+    this.db.prepare("UPDATE participants SET reward_code=REPLACE(reward_code,'PIONNIER-FOURCHETTE-','PIONNIER-BOSCO-') WHERE reward_code LIKE 'PIONNIER-FOURCHETTE-%'").run();
   }
   getSettings() {
     const row = this.db.prepare("SELECT quiz, battle, club FROM campus_settings WHERE id=1").get()!;
@@ -90,9 +91,9 @@ export class CampusStore {
     if (!state.club.quiz || !state.club.vote) {
       throw new CampusError("NOT_ELIGIBLE", "Terminez le quiz et le vote pour obtenir le badge.");
     }
-    // Collectible Pionnier Fourchette badge only: never a coupon or loyalty reward.
+    // Collectible Pionnier del Bosco badge only: never a coupon or loyalty reward.
     this.db.prepare("UPDATE participants SET reward_code=? WHERE identity=? AND reward_code IS NULL")
-      .run(`PIONNIER-FOURCHETTE-${randomUUID()}`, identity);
+      .run(`PIONNIER-BOSCO-${randomUUID()}`, identity);
     return this.getState(identity);
   }
   getState(identity: string): CampusState {

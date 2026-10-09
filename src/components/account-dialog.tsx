@@ -104,7 +104,7 @@ export function AccountDialog({
           <div className="loyalty-profile">
             <DialogHeader className="club-profile-header">
               <span className="account-illustration"><Gift size={25} /></span>
-              <p className="composer-kicker">Club Fourchette</p>
+              <p className="composer-kicker">Club del Bosco</p>
               <DialogTitle>Ton espace gourmand</DialogTitle>
               <DialogDescription>
                 {user.name} · tes tampons, tes récompenses et tes défis campus.
@@ -151,7 +151,7 @@ export function AccountDialog({
           <>
             <DialogHeader className="account-header">
               <span className="account-illustration"><UserRound size={25} /></span>
-              <p className="composer-kicker">Club Fourchette</p>
+              <p className="composer-kicker">Club del Bosco</p>
               <DialogTitle>{mode === "register" ? "Ta pause te rapporte" : "Content de te revoir"}</DialogTitle>
               <DialogDescription>
                 {mode === "register"

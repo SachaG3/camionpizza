@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Fourchette — Pizza campus",
-    short_name: "Fourchette",
+    name: "Pizza del Bosco — Pizzeria campus",
+    short_name: "Pizza del Bosco",
     description: "Commande ta pizza et récupère-la au camion.",
     start_url: "/",
     display: "standalone",

@@ -1,6 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { CampusStore } from "./campus-store";
 
@@ -13,6 +14,17 @@ beforeEach(() => {
 afterEach(() => { store?.dispose(); rmSync(directory, { recursive: true, force: true }); });
 
 describe("campus store", () => {
+  it("migrates legacy Fourchette badge codes to the Pizza del Bosco brand", () => {
+    store.completeQuiz("legacy");
+    store.vote("legacy", "burrata");
+    store.claim("legacy");
+    store.dispose();
+    const db = new DatabaseSync(join(directory, "campus.db"));
+    db.prepare("UPDATE participants SET reward_code='PIONNIER-FOURCHETTE-legacy' WHERE identity='legacy'").run();
+    db.close();
+    store = new CampusStore(join(directory, "campus.db"));
+    expect(store.getState("legacy").club.rewardCode).toBe("PIONNIER-BOSCO-legacy");
+  });
   it("persists publication settings and reopens without losing votes", () => {
     store.vote("one", "burrata");
     store.closeBattle("admin");
@@ -47,7 +59,7 @@ describe("campus store", () => {
     expect(() => store.claim("user:one")).toThrow("vote");
     store.vote("user:one", "burrata");
     const code = store.claim("user:one").club.rewardCode;
-    expect(code).toMatch(/^PIONNIER-FOURCHETTE-/);
+    expect(code).toMatch(/^PIONNIER-BOSCO-/);
     store.dispose();
     store = new CampusStore(join(directory, "campus.db"));
     expect(store.claim("user:one").club).toEqual({ quiz: true, vote: true, rewardCode: code });

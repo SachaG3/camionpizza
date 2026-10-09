@@ -1,5 +1,5 @@
-const CACHE = "fourchette-v4";
-const SHELL = ["/", "/manifest.webmanifest", "/images/pizza-margherita-studio.webp", "/images/pizza-burrata-studio.webp", "/images/pizza-veggie-studio.webp"];
+const CACHE = "fourchette-v5";
+const SHELL = ["/", "/manifest.webmanifest", "/images/pizza-margherita-bosco.webp", "/images/pizza-burrata-bosco.webp", "/images/pizza-veggie-bosco.webp"];
 self.addEventListener("install", event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))));
 self.addEventListener("activate", event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith("fourchette-") && key !== CACHE).map(key => caches.delete(key))))));
 self.addEventListener("fetch", event => {

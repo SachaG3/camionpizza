@@ -32,6 +32,9 @@ describe("order mail", () => {
     expect(message.html).toContain("Lina &lt;script&gt;");
     expect(message.html).not.toContain("Lina <script>");
     expect(message.html).toContain("18,80");
+    expect(message.subject).toContain("Pizza del Bosco");
+    expect(message.html).toContain("Pizza del Bosco");
+    expect(message.html).not.toContain("Fourchette");
   });
 
   it("renders the invoice message only for a picked-up order", () => {

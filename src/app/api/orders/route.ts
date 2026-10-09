@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   const order = await orderStore.create({
     ...parsed.data,
     userId: user?.id ?? null,
-    customerName: user?.name ?? parsed.data.customerName ?? "Client Fourchette",
+    customerName: user?.name ?? parsed.data.customerName ?? "Client Pizza del Bosco",
     customerEmail,
     estimatedMinutes: orderStore.estimateMinutes(),
   });

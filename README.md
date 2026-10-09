@@ -1,4 +1,4 @@
-# Fourchette — Pizza campus
+# Pizza del Bosco — Pizzeria campus
 
 Prototype mobile-first d’un camion à pizzas destiné aux lycéens et étudiants. Le parcours principal permet de choisir le passage du camion, parcourir et rechercher huit recettes, ajouter directement une pizza ou la personnaliser, compléter la commande avec une boisson et un dessert, puis confirmer un créneau de retrait.
 

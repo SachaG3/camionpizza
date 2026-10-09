@@ -14,7 +14,7 @@ const lineSummary = (order: CustomerOrder) => [
 ].join("\n");
 
 function emailFrame(title: string, preheader: string, body: string) {
-  return `<!doctype html><html lang="fr"><body style="margin:0;background:#f6f1e7;color:#25231f;font-family:Arial,Helvetica,sans-serif"><div style="display:none;max-height:0;overflow:hidden">${escapeHtml(preheader)}</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f6f1e7"><tr><td style="padding:28px 12px"><table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" align="center" bgcolor="#fffdf8" style="width:100%;max-width:600px;border:1px solid #ded7ca;border-radius:20px;overflow:hidden"><tr><td bgcolor="#25231f" style="padding:24px 28px;color:#fffdf8"><div style="font-family:Georgia,serif;font-size:24px;font-weight:bold"><span style="color:#e65a3c">F</span> Fourchette</div></td></tr><tr><td style="padding:30px 28px"><p style="margin:0 0 8px;color:#d94a31;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px">Pizza campus</p><h1 style="margin:0 0 20px;font-family:Georgia,serif;font-size:32px;line-height:1.1">${escapeHtml(title)}</h1>${body}</td></tr><tr><td bgcolor="#486149" style="padding:18px 28px;color:#fff;font-size:12px">Pizza chaude. Pause intacte. · Projet scolaire de démonstration</td></tr></table></td></tr></table></body></html>`;
+  return `<!doctype html><html lang="fr"><body style="margin:0;background:#f6f1e7;color:#25231f;font-family:Arial,Helvetica,sans-serif"><div style="display:none;max-height:0;overflow:hidden">${escapeHtml(preheader)}</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f6f1e7"><tr><td style="padding:28px 12px"><table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" align="center" bgcolor="#fffdf8" style="width:100%;max-width:600px;border:1px solid #ded7ca;border-radius:20px;overflow:hidden"><tr><td bgcolor="#25231f" style="padding:24px 28px;color:#fffdf8"><div style="font-family:Georgia,serif;font-size:24px;font-weight:bold"><span style="color:#e65a3c">PdB</span> Pizza del Bosco</div></td></tr><tr><td style="padding:30px 28px"><p style="margin:0 0 8px;color:#d94a31;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px">Pizza campus</p><h1 style="margin:0 0 20px;font-family:Georgia,serif;font-size:32px;line-height:1.1">${escapeHtml(title)}</h1>${body}</td></tr><tr><td bgcolor="#486149" style="padding:18px 28px;color:#fff;font-size:12px">Pizza chaude. Pause intacte. · Projet scolaire de démonstration</td></tr></table></td></tr></table></body></html>`;
 }
 
 function itemRows(order: CustomerOrder) {
@@ -23,8 +23,8 @@ function itemRows(order: CustomerOrder) {
 }
 
 export function renderConfirmationEmail(order: CustomerOrder) {
-  const subject = `Commande ${order.number} confirmée · Fourchette`;
-  const text = `Salut ${order.customerName},\n\nTa commande ${order.number} est confirmée.\n${lineSummary(order)}\n\nTotal : ${euro(order.total)}\nRetrait : ${order.locationName}, ${order.pickupLabel}, à ${order.pickupTime}.\nPaiement au camion.\n\nFourchette`;
+  const subject = `Commande ${order.number} confirmée · Pizza del Bosco`;
+  const text = `Salut ${order.customerName},\n\nTa commande ${order.number} est confirmée.\n${lineSummary(order)}\n\nTotal : ${euro(order.total)}\nRetrait : ${order.locationName}, ${order.pickupLabel}, à ${order.pickupTime}.\nPaiement au camion.\n\nPizza del Bosco`;
   const html = emailFrame(
     `C’est dans le four, ${order.customerName}.`,
     `Commande ${order.number} confirmée pour ${order.pickupTime}.`,
@@ -35,8 +35,8 @@ export function renderConfirmationEmail(order: CustomerOrder) {
 
 export function renderInvoiceEmail(order: CustomerOrder) {
   if (order.status !== "picked_up") throw new Error("La facture est disponible après récupération de la commande.");
-  const subject = `Ta facture ${order.number} · Fourchette`;
-  const text = `Salut ${order.customerName},\n\nTa commande ${order.number} a bien été récupérée. Ta facture est jointe à cet e-mail.\n\nTotal : ${euro(order.total)}\n\nMerci et à bientôt,\nFourchette`;
+  const subject = `Ta facture ${order.number} · Pizza del Bosco`;
+  const text = `Salut ${order.customerName},\n\nTa commande ${order.number} a bien été récupérée. Ta facture est jointe à cet e-mail.\n\nTotal : ${euro(order.total)}\n\nMerci et à bientôt,\nPizza del Bosco`;
   const html = emailFrame(
     "Merci pour ta commande.",
     `La facture de la commande ${order.number} est jointe.`,
@@ -47,8 +47,8 @@ export function renderInvoiceEmail(order: CustomerOrder) {
 
 export function renderReadyEmail(order: CustomerOrder) {
   return {
-    subject: `Ta commande ${order.number} est prête · Fourchette`,
-    text: `Salut ${order.customerName},\n\nTa commande ${order.number} est prête. Tu peux venir la récupérer à ${order.locationName}, ${order.pickupLabel}.\n\nFourchette`,
+    subject: `Ta commande ${order.number} est prête · Pizza del Bosco`,
+    text: `Salut ${order.customerName},\n\nTa commande ${order.number} est prête. Tu peux venir la récupérer à ${order.locationName}, ${order.pickupLabel}.\n\nPizza del Bosco`,
     html: emailFrame("C’est prêt !", `La commande ${order.number} t’attend.`, `<p style="margin:0 0 18px;color:#726e66;line-height:1.6">Ta commande <strong style="color:#25231f">${escapeHtml(order.number)}</strong> est chaude et prête à être récupérée.</p><div style="padding:18px;background:#f6f1e7;border-radius:12px"><strong>${escapeHtml(order.locationName)}</strong><br><span style="color:#726e66">${escapeHtml(order.pickupLabel)}</span></div>`),
   };
 }
@@ -56,12 +56,12 @@ export function renderReadyEmail(order: CustomerOrder) {
 export async function createInvoicePdf(order: CustomerOrder): Promise<Buffer> {
   if (order.status !== "picked_up") throw new Error("La facture est disponible après récupération de la commande.");
   return new Promise((resolve, reject) => {
-    const document = new PDFDocument({ size: "A4", margin: 54, info: { Title: `Facture ${order.number}`, Author: "Fourchette" } });
+    const document = new PDFDocument({ size: "A4", margin: 54, info: { Title: `Facture ${order.number}`, Author: "Pizza del Bosco" } });
     const chunks: Buffer[] = [];
     document.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
     document.on("end", () => resolve(Buffer.concat(chunks)));
     document.on("error", reject);
-    document.fillColor("#d94a31").fontSize(13).text("FOURCHETTE", { characterSpacing: 2 });
+    document.fillColor("#d94a31").fontSize(13).text("PIZZA DEL BOSCO", { characterSpacing: 2 });
     document.moveDown(.4).fillColor("#25231f").fontSize(30).text("Facture", { continued: true }).fontSize(13).text(`  ${order.number}`);
     document.moveDown().fontSize(10).fillColor("#726e66").text(`Émise le ${new Date(order.pickedUpAt ?? order.updatedAt).toLocaleDateString("fr-FR")} · Paiement au camion`);
     document.moveDown(2).fillColor("#25231f").fontSize(11).text(order.customerName).text(order.customerEmail).moveDown(.5).text(`${order.locationName} · ${order.pickupLabel}`).text(`Retrait à ${order.pickupTime}`);
@@ -73,7 +73,7 @@ export async function createInvoicePdf(order: CustomerOrder): Promise<Buffer> {
     }
     if (order.discount) document.fillColor("#486149").text("Remise formule", { continued: true }).text(`−${euro(order.discount)}`, { align: "right" }).moveDown();
     document.moveDown().fillColor("#25231f").fontSize(17).text("Total", { continued: true }).text(euro(order.total), { align: "right" });
-    document.moveDown(5).fontSize(9).fillColor("#726e66").text("Fourchette · Camion-pizzeria campus · Projet scolaire de démonstration").text("Aucun paiement en ligne n’a été traité.");
+    document.moveDown(5).fontSize(9).fillColor("#726e66").text("Pizza del Bosco · Camion-pizzeria campus · Projet scolaire de démonstration").text("Aucun paiement en ligne n’a été traité.");
     document.end();
   });
 }
