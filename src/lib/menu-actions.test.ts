@@ -41,6 +41,7 @@ describe("filterPizzas", () => {
   it("combines a category and a search query", () => {
     expect(filterPizzas(pizzas, "veggie", "basilic").map((pizza) => pizza.id)).toEqual([
       "margherita",
+      "tomato",
     ]);
     expect(filterPizzas(pizzas, "spicy", "vert").map((pizza) => pizza.id)).toEqual([
       "nduja",

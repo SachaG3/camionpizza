@@ -85,9 +85,9 @@ export const pizzas: Pizza[] = [
   {
     id: "tomato",
     name: "La Dernière Heure",
-    description: "Tomates cerises, mozzarella, ail rôti, origan et huile verte.",
+    description: "Tomates cerises, mozzarella, olives noires, basilic frais et huile d’olive.",
     price: 9.5,
-    image: "/images/pizza-tomato-bosco.webp",
+    image: "/images/pizza-tomato-bosco-v2.webp",
     tags: ["Végé", "Fraîche"],
     accent: "#c94b32",
     allergens: ["Gluten", "Lait"],
