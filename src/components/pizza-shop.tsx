@@ -449,7 +449,7 @@ export function PizzaShop() {
         <div className="intro-visual">
           <div className="hero-photo">
             <Image
-              src="/images/pizza-burrata-v2.webp"
+              src="/images/pizza-burrata-studio.webp"
               alt="Pizza artisanale à la burrata"
               fill
               priority
