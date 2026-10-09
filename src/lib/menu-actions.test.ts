@@ -42,7 +42,7 @@ describe("filterPizzas", () => {
     expect(filterPizzas(pizzas, "veggie", "basilic").map((pizza) => pizza.id)).toEqual([
       "margherita",
     ]);
-    expect(filterPizzas(pizzas, "spicy", "basilic").map((pizza) => pizza.id)).toEqual([
+    expect(filterPizzas(pizzas, "spicy", "vert").map((pizza) => pizza.id)).toEqual([
       "nduja",
     ]);
   });
@@ -54,7 +54,7 @@ describe("createDefaultCartLine", () => {
       id: "burrata-solo-tomate-none",
       pizzaId: "burrata",
       name: "La Boursière",
-      image: "/images/pizza-burrata.webp",
+      image: "/images/pizza-burrata-v2.webp",
       unitPrice: 11.5,
       quantity: 1,
       details: ["Solo · 26 cm", "Tomate rôtie"],
