@@ -12,7 +12,7 @@ const input = {
   userId: "user-1",
   customerName: "Lina",
   customerEmail: "lina@example.fr",
-  locationName: "Lycée Jean-Moulin",
+  locationName: "IUT de Mulhouse",
   pickupLabel: "Portail principal",
   pickupTime: "12:30",
   items: [{ name: "La Major", quantity: 2, unitPrice: 8.5, details: ["Solo", "Tomate"] }],

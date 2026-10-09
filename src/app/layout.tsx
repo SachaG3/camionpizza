@@ -14,11 +14,23 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Pizza del Bosco — Pizzeria campus",
-  description: "La pizza qui arrive avant la sonnerie.",
+  title: "Pizza del Bosco — Pizzeria du campus",
+  description: "Pizzas artisanales, commande en ligne et retrait au camion.",
   applicationName: "Pizza del Bosco",
   appleWebApp: { capable: true, title: "Pizza del Bosco", statusBarStyle: "default" },
   icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
+  openGraph: {
+    title: "Pizza del Bosco — Pizzeria du campus",
+    description: "Pizzas artisanales, commande en ligne et retrait au camion.",
+    siteName: "Pizza del Bosco",
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Pizza del Bosco — Pizzeria du campus",
+    description: "Pizzas artisanales, commande en ligne et retrait au camion.",
+  },
 };
 
 export const viewport = { themeColor: "#e54b2a", width: "device-width", initialScale: 1 };
