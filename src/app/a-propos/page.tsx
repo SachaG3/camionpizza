@@ -90,7 +90,7 @@ export default function AboutPage() {
 
       <section className="about-block about-gallery" aria-label="Quelques recettes">
         {[
-          ["pizza-burrata-bosco.webp", "La Boursière, burrata et pesto de pistache"],
+          ["pizza-burrata-bosco-v2.webp", "La Boursière, pesto et burrata fondante"],
           ["pizza-diavola-bosco.webp", "La Copie Double, nduja et piment"],
           ["pizza-veggie-bosco.webp", "La Mention Très Bien, légumes du marché"],
         ].map(([file, label]) => (

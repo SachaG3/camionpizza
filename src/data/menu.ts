@@ -28,9 +28,9 @@ export const pizzas: Pizza[] = [
   {
     id: "burrata",
     name: "La Boursière",
-    description: "Crème de parmesan, burrata fondante et pesto de pistache.",
+    description: "Pesto, burrata fondante, rubans de courgette et poivron rouge.",
     price: 11.5,
-    image: "/images/pizza-burrata-bosco.webp",
+    image: "/images/pizza-burrata-bosco-v2.webp",
     tags: ["Crémeuse", "Signature"],
     accent: "#73964b",
     allergens: ["Gluten", "Lait", "Fruits à coque"],
