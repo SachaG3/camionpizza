@@ -198,6 +198,8 @@ footer small { justify-self: end; color: #aaa69f; }
 .about-stop small { color: var(--muted); font-size: 12px; line-height: 1.35; }
 .about-stop-time { text-align: right; }
 .about-stop-time strong { font-size: 12px; font-weight: 800; }
+.about-more { margin-top: 26px; display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 800; font-size: 14px; border-bottom: 2px solid var(--ink); padding-bottom: 3px; }
+.about-more:hover { color: var(--tomato-dark); border-color: var(--tomato-dark); }
 footer small a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 760px) {
   .about-section { grid-template-columns: 1fr; padding: 52px 20px; }

@@ -170,8 +170,11 @@ export function PizzaShop() {
 
   useEffect(() => {
     const restoreLocation = window.setTimeout(() => {
+      const requested = new URLSearchParams(window.location.search).get("lieu");
       const restoredId = parseSelectedLocationId(
-        window.localStorage.getItem("fourchette-location"),
+        locations.some((location) => location.id === requested)
+          ? requested
+          : window.localStorage.getItem("fourchette-location"),
       );
       const restored = locations.find((location) => location.id === restoredId) ?? locations[0];
       setLocationId(restored.id);
@@ -600,6 +603,7 @@ export function PizzaShop() {
             <div><dt>~{estimateMinutes} min</dt><dd>entre la commande et le retrait</dd></div>
             <div><dt>2</dt><dd>arrêts à Mulhouse chaque semaine</dd></div>
           </dl>
+          <a className="about-more" href="/a-propos">Lire notre histoire <ArrowRight size={17} /></a>
         </div>
         <div className="about-stops" aria-label="Où passe le camion">
           <p className="section-kicker">Où passe le camion</p>
@@ -628,7 +632,7 @@ export function PizzaShop() {
       <footer>
         <div className="brand footer-brand"><span className="brand-mark">DB</span><span>Pizza del Bosco</span></div>
         <p>Pizza chaude. Pause intacte.</p>
-        <small><a href="#a-propos">À propos</a> · Projet scolaire · Démonstration</small>
+        <small><a href="/a-propos">À propos</a> · Projet scolaire · Démonstration</small>
       </footer>
 
       {itemCount > 0 && (
